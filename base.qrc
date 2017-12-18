@@ -1,0 +1,26 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/base/BaseChart.qml</file>
+        <file>resources/base/ChartPage.qml</file>
+        <file>resources/base/HumidityChart.qml</file>
+        <file>resources/base/LightChart.qml</file>
+        <file>resources/base/LocationPage.qml</file>
+        <file>resources/base/MagnetometerChart.qml</file>
+        <file>resources/base/main.qml</file>
+        <file>resources/base/ObjectTemperatureChart.qml</file>
+        <file>resources/base/TemperatureChart.qml</file>
+        <file>resources/base/TopToolbar.qml</file>
+        <file>resources/base/CircularGauge.qml</file>
+        <file>resources/base/GyroChart.qml</file>
+        <file>resources/base/AccelChart.qml</file>
+        <file>resources/base/SensorSettings.qml</file>
+        <file>resources/base/CloudSettings.qml</file>
+        <file>resources/base/fonts/titilliumweb/TitilliumWeb-Bold.ttf</file>
+        <file>resources/base/fonts/titilliumweb/TitilliumWeb-Regular.ttf</file>
+        <file>resources/base/fonts/titilliumweb/TitilliumWeb-SemiBold.ttf</file>
+        <file>resources/base/images/bg_blue.jpg</file>
+        <file>resources/base/RotationPage.qml</file>
+        <file>resources/base/AltitudeChart.qml</file>
+        <file>resources/base/BlinkingIcon.qml</file>
+    </qresource>
+</RCC>
