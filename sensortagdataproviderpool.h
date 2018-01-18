@@ -51,11 +51,14 @@
 #define SENSORTAGDATAPROVIDERPOOL_H
 
 #include "dataproviderpool.h"
+#ifndef Q_OS_HTML5
 #include "bluetoothdevice.h"
-
+#endif
 #include <QObject>
-#include <QBluetoothDeviceDiscoveryAgent>
-#include <QBluetoothDeviceInfo>
+#ifndef Q_OS_HTML5
+#include <QtBluetooth/QBluetoothDeviceDiscoveryAgent>
+#include <QtBluetooth/QBluetoothDeviceInfo>
+#endif
 #include <QList>
 
 class SensorTagDataProviderPool : public DataProviderPool
@@ -77,15 +80,19 @@ protected:
 
 private slots:
     void deviceDiscoveryFinished();
+#ifndef Q_OS_HTML5
     void btDeviceFound(const QBluetoothDeviceInfo &info);
-    void handleStateChange();
     void deviceScanError(QBluetoothDeviceDiscoveryAgent::Error error);
+#endif
+    void handleStateChange();
 
 private:
     SensorTagDataProvider *findProvider(QString id) const;
 
+#ifndef Q_OS_HTML5
     QBluetoothDeviceDiscoveryAgent *m_discoveryAgent;
     QList<QBluetoothDeviceInfo> m_knownDevices;
+#endif
     SensorTagDataProvider *m_providerForCloud;
 };
 

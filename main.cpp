@@ -49,7 +49,11 @@
 ****************************************************************************/
 
 #if defined(RUNS_AS_HOST)
+
+#ifndef __EMSCRIPTEN__
 #include "bluetoothdataprovider.h"
+#endif
+
 #include "sensortagdataprovider.h"
 #include "sensortagdataproviderpool.h"
 #include "demodataproviderpool.h"
@@ -75,6 +79,10 @@
 #include <QFontDatabase>
 #include <QScreen>
 
+#ifdef Q_OS_HTML5
+#include <emscripten/emscripten.h>
+#endif
+
 Q_DECLARE_LOGGING_CATEGORY(boot2QtDemos)
 Q_LOGGING_CATEGORY(boot2QtDemos, "boot2qt.demos.iot")
 
@@ -92,13 +100,17 @@ void handleMessageOutput(QtMsgType, const QMessageLogContext &, const QString &t
 
 int main(int argc, char *argv[])
 {
-    auto oldHandler = qInstallMessageHandler(handleMessageOutput);
+ //   auto oldHandler = qInstallMessageHandler(handleMessageOutput);
+
+    QLoggingCategory::setFilterRules(QStringLiteral("boot2qt.demos.iot.debug=true"));
 
     // QtChars mandate using QApplication as it uses the graphics view fw
     QApplication app(argc, argv);
 
+#ifndef Q_OS_HTML5
     QFontDatabase::addApplicationFont(QString::fromLatin1(":/resources/base/fonts/titilliumweb/TitilliumWeb-Regular.ttf"));
     app.setFont(QFont("Titillium Web", 13));
+#endif
 
     DataProviderPool *remoteProviderPool = nullptr;
     DataProviderPool *localProviderPool = nullptr;
@@ -112,8 +124,10 @@ int main(int argc, char *argv[])
 #if defined(MQTT_UPLOAD)
     remoteProviderPool = new MqttDataProviderPool;
 #endif
+//#ifdef Q_OS_HTML5
+//    remoteProviderPool = new CloudDataProviderPool;
+//#endif
 #if defined(RUNS_AS_HOST)
-//    localProviderPool = new MockDataProviderPool;
     localProviderPool = new DemoDataProviderPool;
 #endif
     seriesStorage.setDataProviderPool(remoteProviderPool);
@@ -128,7 +142,6 @@ int main(int argc, char *argv[])
 #  else
     MqttUpdate update;
 #  endif
-
     update.setDataProviderPool(localProviderPool);
     update.restart();
 #endif
@@ -150,8 +163,22 @@ int main(int argc, char *argv[])
 #else
                     false;
 #endif
+#ifdef Q_OS_HTML5
+    int appWidth;
+    int appHeight;
+//    int w, h, fs;
+//    emscripten_get_canvas_size(&w, &h, &fs);
+//    if (!w && !h) {
+        appWidth = 1024;
+        appHeight = 1024;
+//    } else {
+//        appWidth = w;
+//        appHeight = h;
+//    }
+#else
     int appWidth = 1920;
     int appHeight = 1080;
+#endif
 
     QScreen* scr = qApp->screens().at(0);
 
@@ -159,7 +186,8 @@ int main(int argc, char *argv[])
     qCDebug(boot2QtDemos) << "screen dimensions" << scr->geometry().size();
     qCDebug(boot2QtDemos) << "Scale factor:" << sf.data();
 
-    QString addressString;
+    QString addressString = "10.0.0.71/";
+#ifndef QT_NO_NETWORKINTERFACE
     for (auto address : QNetworkInterface::allAddresses()) {
         if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress(QHostAddress::LocalHost)
                 && !address.toString().startsWith(QLatin1String("169"))) {
@@ -167,6 +195,8 @@ int main(int argc, char *argv[])
             addressString.append(QLatin1Char('/'));
         }
     }
+#endif
+    qDebug() << Q_FUNC_INFO << "addressString" << addressString;
 #ifdef UI_WATCH
     mainFile = namingScheme + QStringLiteral("/resources/watch/MainWatch.qml");
     styleFile = namingScheme + QStringLiteral("/resources/watch/StyleWatch.qml");
@@ -204,10 +234,11 @@ int main(int argc, char *argv[])
         item->setProperty("addresses", addressString);
         loggingItem = item;
     }
+
     int returnValue = app.exec();
     remoteProviderPool->stopScanning();
 
-    qInstallMessageHandler(oldHandler);
+//    qInstallMessageHandler(oldHandler);
 
     return returnValue;
 }

@@ -55,8 +55,8 @@
 
 class MqttDataProvider;
 
-#define MQTT_BROKER ""
-#define MQTT_PORT 1883
+#define MQTT_BROKER "10.0.0.75"
+#define MQTT_PORT 	1883
 #define MQTT_USERNAME ""
 #define MQTT_PASSWORD ""
 

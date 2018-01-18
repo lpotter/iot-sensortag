@@ -1,7 +1,6 @@
 TEMPLATE = app
 
 QT += \
-      bluetooth \
       core \
       charts \
       gui \
@@ -10,20 +9,27 @@ QT += \
       quick \
       widgets
 
+!emscripten: QT += bluetooth
+
 CONFIG += c++11
 DEFINES += QT_NO_FOREACH
 
 # Specify UI layout to use: UI_SMALL or UI_WATCH
-DEFINES += UI_WATCH
-
+emscripten {
+    DEFINES += UI_SMALL
+} else {
+    DEFINES += UI_WATCH
+}
 # To overcome the bug QTBUG-58648, uncomment this define
 # Needed at least for RPi3 and iMX
 #CONFIG += DEPLOY_TO_FS
 
-win32|linux|android:!qnx {
-    CONFIG += BLUETOOTH_HOST
-} else {
-    message(Unsupported target platform)
+qtHaveModule(bluetooth) {
+    win32|linux|android:!qnx {
+        CONFIG += BLUETOOTH_HOST
+    } else {
+        message(Unsupported target platform)
+    }
 }
 
 # For using MQTT upload enable this config.
@@ -67,6 +73,18 @@ HEADERS += \
     bluetoothapiconstants.h \
     seriesstorage.h \
     mockdataproviderpool.h
+
+emscripten: {
+    DEFINES += RUNS_AS_HOST
+    DEFINES += MQTT_UPLOAD
+
+    SOURCES += \
+        sensortagdataproviderpool.cpp \
+        demodataproviderpool.cpp
+    HEADERS += \
+        sensortagdataproviderpool.h \
+        demodataproviderpool.h
+}
 
 BLUETOOTH_HOST {
     DEFINES += RUNS_AS_HOST

@@ -49,10 +49,11 @@
 ****************************************************************************/
 #include "demodataproviderpool.h"
 #include "mockdataprovider.h"
+#ifndef Q_OS_HTML5
 #include "bluetoothdataprovider.h"
-
+#endif
 #include <QLoggingCategory>
-
+#include <QDebug>
 Q_DECLARE_LOGGING_CATEGORY(boot2QtDemos)
 
 DemoCloudProvider::DemoCloudProvider(QObject *parent)
@@ -272,20 +273,22 @@ DemoDataProviderPool::DemoDataProviderPool(QObject *parent)
 
 void DemoDataProviderPool::startScanning()
 {
+
+    qDebug() << Q_FUNC_INFO;
     qDeleteAll(m_dataProviders);
     m_dataProviders.clear();
 
     MockDataProvider* p = new MockDataProvider("MOCK_PROVIDER_1", this);
     p->setTagType(SensorTagDataProvider::ObjectTemperature | SensorTagDataProvider::AmbientTemperature | SensorTagDataProvider::Rotation);
     m_dataProviders.push_back(p);
-    p = new MockDataProvider("MOCK_PROVIDER_2", this);
-    p->setTagType(SensorTagDataProvider::Humidity | SensorTagDataProvider::Light | SensorTagDataProvider::Accelometer);
-    m_dataProviders.push_back(p);
-    p = new MockDataProvider("MOCK_PROVIDER_3", this);
-    p->setTagType(SensorTagDataProvider::Magnetometer | SensorTagDataProvider::AirPressure);
+    MockDataProvider*p2 = new MockDataProvider("MOCK_PROVIDER_2", this);
+    p2->setTagType(SensorTagDataProvider::Humidity | SensorTagDataProvider::Light | SensorTagDataProvider::Accelometer);
+    m_dataProviders.push_back(p2);
+    MockDataProvider* p3 = new MockDataProvider("MOCK_PROVIDER_3", this);
+    p3->setTagType(SensorTagDataProvider::Magnetometer | SensorTagDataProvider::AirPressure);
     m_dataProviders.push_back(p);
     for (int i=0; i < m_dataProviders.length(); i++)
-        emit providerConnected(p->id());
+        emit providerConnected(m_dataProviders.at(i)->id());
     // Stop scanning as we already have a provider
     finishScanning();
 

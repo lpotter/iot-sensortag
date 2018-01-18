@@ -58,10 +58,14 @@ MqttDataProviderPool::MqttDataProviderPool(QObject *parent)
     , m_client(new QMqttClient(this))
 {
     m_poolName = "Mqtt";
+
+    qDebug() << Q_FUNC_INFO;
 }
 
 void MqttDataProviderPool::startScanning()
 {
+
+    qDebug() << Q_FUNC_INFO;
     emit providerConnected("MQTT_CLOUD");
     emit providersUpdated();
     emit dataProvidersChanged();

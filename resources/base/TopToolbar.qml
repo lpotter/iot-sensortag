@@ -162,13 +162,16 @@ Item {
             anchors.fill: parent
             onClicked: clickBait.activate(logWindow)
         }
+        Component.onCompleted: {
+        console.log(Qt.formatTime(new Date, "HH:mm"))
+        }
     }
 
     Timer {
         interval: 60000 // Update time once a minute
         running: true
         repeat: true
-        onTriggered: timeLabel.text = Qt.formatTime(new Date, "HH:mm")
+        onTriggered: timeLabel.text = Qt.formatTime(new Date.now(), "HH:mm")
     }
 
     Text {
@@ -182,6 +185,9 @@ Item {
         font.pixelSize: Style.topToolbarSmallFontSize
         Component.onCompleted: {
             var date = new Date
+            console.log("<><><><><>><><><><><>");
+            console.log(date.getTime());
+
             var offsetString = -date.getTimezoneOffset() / 60
             if (offsetString < 0)
                 text = text + "-"

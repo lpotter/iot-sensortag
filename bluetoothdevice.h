@@ -52,8 +52,8 @@
 
 #include "serviceinfo.h"
 
-#include <QBluetoothDeviceDiscoveryAgent>
-#include <QLowEnergyController>
+#include <QtBluetooth/QBluetoothDeviceDiscoveryAgent>
+#include <QtBluetooth/QLowEnergyController>
 #include <QObject>
 #include <QVariant>
 #include <QList>
