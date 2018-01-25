@@ -66,6 +66,7 @@ MqttDataProvider::MqttDataProvider(QString id, QMqttClient *client, QObject *par
 {
     intervalRotation = 200;
 
+    qDebug() << Q_FUNC_INFO;
     m_pollTimer = new QTimer(this);
     m_pollTimer->setInterval(intervalRotation);
     m_pollTimer->setSingleShot(false);
@@ -74,9 +75,10 @@ MqttDataProvider::MqttDataProvider(QString id, QMqttClient *client, QObject *par
 
 bool MqttDataProvider::startDataFetching()
 {
+    qDebug() << Q_FUNC_INFO;
     const QString subName = QString::fromLocal8Bit("sensors/%1/#").arg(m_id);
 
-    m_subscription = m_client->subscribe(subName);
+    m_subscription = m_client->subscribe(subName).data();
     connect(m_subscription, &QMqttSubscription::messageReceived,
             this, &MqttDataProvider::messageReceived);
     return true;
@@ -108,6 +110,7 @@ void MqttDataProvider::reset()
 
 void MqttDataProvider::messageReceived(const QMqttMessage &msg)
 {
+    qDebug() << Q_FUNC_INFO;
     parseMessage(msg.payload(), msg.topic());
     if (!m_pollTimer->isActive())
         m_pollTimer->start();
@@ -115,6 +118,7 @@ void MqttDataProvider::messageReceived(const QMqttMessage &msg)
 
 void MqttDataProvider::parseMessage(const QString &content, const QString &topic)
 {
+    qDebug() << Q_FUNC_INFO;
     const QString msgType = topic.split(QLatin1Char('/')).last();
     if (msgType == QStringLiteral("type")) {
         qDebug() << "Type: " << content;

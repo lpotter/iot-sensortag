@@ -56,7 +56,7 @@
 #include <QQmlEngine>
 #include <QJSEngine>
 #include <QTimer>
-#include <QtBluetooth/QBluetoothDeviceInfo>
+#include <QBluetoothDeviceInfo>
 
 class BluetoothDataProvider : public SensorTagDataProvider
 {

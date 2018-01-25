@@ -9,7 +9,7 @@ QT += \
       quick \
       widgets
 
-!emscripten: QT += bluetooth
+!emscripten: Qt += bluetooth
 
 CONFIG += c++11
 DEFINES += QT_NO_FOREACH
@@ -20,10 +20,10 @@ emscripten {
 } else {
     DEFINES += UI_WATCH
 }
+
 # To overcome the bug QTBUG-58648, uncomment this define
 # Needed at least for RPi3 and iMX
 #CONFIG += DEPLOY_TO_FS
-
 qtHaveModule(bluetooth) {
     win32|linux|android:!qnx {
         CONFIG += BLUETOOTH_HOST
@@ -31,7 +31,6 @@ qtHaveModule(bluetooth) {
         message(Unsupported target platform)
     }
 }
-
 # For using MQTT upload enable this config.
 # This enables both, host and client mode
 # CONFIG += UPDATE_TO_MQTT_BROKER
@@ -75,18 +74,32 @@ HEADERS += \
     mockdataproviderpool.h
 
 emscripten: {
-    DEFINES += RUNS_AS_HOST
-    DEFINES += MQTT_UPLOAD
+message("using emscripten")
+  # DEFINES += RUNS_AS_HOST
+ #  DEFINES += MQTT_UPLOAD
+
+    QT += websockets mqtt
+
+    CONFIG += static
 
     SOURCES += \
         sensortagdataproviderpool.cpp \
-        demodataproviderpool.cpp
+        demodataproviderpool.cpp \
+        websocketiodevice.cpp \
+        mqttupdate.cpp \
+        mqttdataproviderpool.cpp \
+        mqttdataprovider.cpp \
+
     HEADERS += \
         sensortagdataproviderpool.h \
-        demodataproviderpool.h
+        demodataproviderpool.h \
+        websocketiodevice.h \
+        mqttupdate.h \
+        mqttdataproviderpool.h \
+        mqttdataprovider.h \
 }
 
-BLUETOOTH_HOST {
+!emscripten:BLUETOOTH_HOST {
     DEFINES += RUNS_AS_HOST
 
     SOURCES += \
@@ -110,7 +123,7 @@ UPDATE_TO_MQTT_BROKER {
     !qtHaveModule(mqtt): error("Could not find MQTT module for Qt version")
     QT += mqtt
     DEFINES += MQTT_UPLOAD
-
+CONFIG += c++11
     SOURCES += mqttupdate.cpp \
                mqttdataproviderpool.cpp \
                mqttdataprovider.cpp

@@ -3,7 +3,7 @@
 ** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the examples of Qt for Device Creation.
+** This file is part of the examples of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:BSD$
 ** Commercial License Usage
@@ -47,39 +47,39 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-#ifndef MQTTDATAPROVIDERPOOL_H
-#define MQTTDATAPROVIDERPOOL_H
 
-#include "dataproviderpool.h"
-#ifdef Q_OS_HTML5
-#include "websocketiodevice.h"
-#endif
+#ifndef WEBSOCKETIODEVICE_H
+#define WEBSOCKETIODEVICE_H
 
-#include <QtMqtt/QMqttClient>
+#include <QtCore/QIODevice>
+#include <QtWebSockets/QWebSocket>
 
-class MqttDataProvider;
-
-#define MQTT_BROKER "10.0.0.61"
-#define MQTT_PORT 8000
-#define MQTT_USERNAME ""
-#define MQTT_PASSWORD ""
-
-class MqttDataProviderPool : public DataProviderPool
+class WebSocketIODevice : public QIODevice
 {
+    Q_OBJECT
 public:
-    explicit MqttDataProviderPool(QObject *parent = 0);
+    WebSocketIODevice(QObject *parent = nullptr);
+    ~WebSocketIODevice();
+    bool open(OpenMode mode) override;
+    void close() override;
 
-    void startScanning() override;
+    qint64 readData(char *data, qint64 maxlen) override;
+    qint64 writeData(const char *data, qint64 len) override;
 
-public Q_SLOTS:
-    void deviceUpdate(const QMqttMessage &msg);
+    void setUrl(const QUrl &url);
+    void setProtocol(const QByteArray &data);
+Q_SIGNALS:
+    void socketConnected();
+
+public slots:
+    void handleBinaryMessage(const QByteArray &msg);
+    void onSocketConnected();
 
 private:
-    QMqttClient *m_client;
-#ifdef Q_OS_HTML5
-    WebSocketIODevice *m_device;
-    int m_version;
-#endif
+    QByteArray m_protocol;
+    QByteArray m_buffer;
+    QWebSocket m_socket;
+    QUrl m_url;
 };
 
-#endif // MQTTDATAPROVIDERPOOL_H
+#endif // WEBSOCKETIODEVICE_H

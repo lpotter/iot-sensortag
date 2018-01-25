@@ -78,6 +78,10 @@ public slots:
 private:
     QTimer *m_pollTimer;
     QMqttClient *m_client;
+#ifndef Q_OS_HTML5
+    QSharedPointer<QMqttSubscription> m_subscription;
+#else
     QMqttSubscription *m_subscription;
+#endif
 };
 #endif // MQTTDATAPROVIDER_H

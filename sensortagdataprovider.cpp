@@ -103,8 +103,6 @@ SensorTagDataProvider::SensorTagDataProvider(QString id, QObject *parent)
     , m_id(id)
     , m_state(NotFound)
 {
-
-    qDebug() << Q_FUNC_INFO << id;
 }
 
 QString SensorTagDataProvider::getRelativeHumidityString() const

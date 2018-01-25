@@ -3,7 +3,7 @@
 ** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the examples of Qt for Device Creation.
+** This file is part of the examples of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:BSD$
 ** Commercial License Usage
@@ -47,39 +47,84 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-#ifndef MQTTDATAPROVIDERPOOL_H
-#define MQTTDATAPROVIDERPOOL_H
 
-#include "dataproviderpool.h"
-#ifdef Q_OS_HTML5
 #include "websocketiodevice.h"
-#endif
 
-#include <QtMqtt/QMqttClient>
+#include <QtCore/QDebug>
+#include <QCoreApplication>
 
-class MqttDataProvider;
-
-#define MQTT_BROKER "10.0.0.61"
-#define MQTT_PORT 8000
-#define MQTT_USERNAME ""
-#define MQTT_PASSWORD ""
-
-class MqttDataProviderPool : public DataProviderPool
+WebSocketIODevice::WebSocketIODevice(QObject *parent)
+    : QIODevice(parent)
 {
-public:
-    explicit MqttDataProviderPool(QObject *parent = 0);
 
-    void startScanning() override;
+    qDebug() << Q_FUNC_INFO;
+    connect(&m_socket, &QWebSocket::connected, this, &WebSocketIODevice::onSocketConnected);
+    connect(&m_socket, &QWebSocket::binaryMessageReceived, this, &WebSocketIODevice::handleBinaryMessage);
+}
 
-public Q_SLOTS:
-    void deviceUpdate(const QMqttMessage &msg);
+WebSocketIODevice::~WebSocketIODevice()
+{
+    close();
+}
 
-private:
-    QMqttClient *m_client;
-#ifdef Q_OS_HTML5
-    WebSocketIODevice *m_device;
-    int m_version;
-#endif
-};
+bool WebSocketIODevice::open(QIODevice::OpenMode mode)
+{
+    qDebug() << Q_FUNC_INFO;
+    // Cannot use an URL because of missing sub protocol support
+    // Have to use QNetworkRequest, see QTBUG-38742
+    QNetworkRequest request;
+    request.setUrl(m_url);
+    request.setRawHeader("Sec-WebSocket-Protocol", m_protocol.constData());
 
-#endif // MQTTDATAPROVIDERPOOL_H
+    m_socket.open(request);
+
+    return QIODevice::open(mode);
+}
+
+void WebSocketIODevice::close()
+{
+    m_socket.close();
+    QIODevice::close();
+}
+
+qint64 WebSocketIODevice::readData(char *data, qint64 maxlen)
+{
+
+    qDebug() << Q_FUNC_INFO;
+    qint64 bytesToRead = qMin(maxlen, (qint64)m_buffer.size());
+    memcpy(data, m_buffer.constData(), bytesToRead);
+    m_buffer = m_buffer.right(m_buffer.size() - bytesToRead);
+    return bytesToRead;
+}
+
+qint64 WebSocketIODevice::writeData(const char *data, qint64 len)
+{
+    QByteArray msg(data, len);
+    qDebug() << Q_FUNC_INFO << msg;
+    const int length = m_socket.sendBinaryMessage(msg);
+    return length;
+}
+
+void WebSocketIODevice::setUrl(const QUrl &url)
+{
+    m_url = url;
+}
+
+void WebSocketIODevice::setProtocol(const QByteArray &data)
+{
+    m_protocol = data;
+}
+
+void WebSocketIODevice::handleBinaryMessage(const QByteArray &msg)
+{
+    m_buffer.append(msg);
+    emit readyRead();
+    QCoreApplication::processEvents();
+}
+
+void WebSocketIODevice::onSocketConnected()
+{
+    qDebug() << Q_FUNC_INFO;
+    emit socketConnected();
+    QCoreApplication::processEvents();
+}

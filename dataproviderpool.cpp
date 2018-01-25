@@ -49,6 +49,7 @@
 ****************************************************************************/
 #include "dataproviderpool.h"
 #include <QDebug>
+
 DataProviderPool::DataProviderPool(QObject *parent)
     : QObject(parent)
     , m_currentProvider(nullptr)
@@ -63,7 +64,6 @@ DataProviderPool::DataProviderPool(QString poolName, QObject *parent)
     , m_currentProvider(nullptr)
     , m_currentProviderIndex(-1)
 {
-
     qDebug() << Q_FUNC_INFO;
 }
 

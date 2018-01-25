@@ -52,10 +52,19 @@
 #include "mqttdataprovider.h"
 
 #include <QtCore/QDebug>
+#include <QObject>
+
+#ifdef Q_OS_HTML5
+#include "websocketiodevice.h"
+#endif
 
 MqttDataProviderPool::MqttDataProviderPool(QObject *parent)
     : DataProviderPool(parent)
     , m_client(new QMqttClient(this))
+#ifdef Q_OS_HTML5
+    , m_device(new WebSocketIODevice(this))
+    , m_version(4)
+#endif
 {
     m_poolName = "Mqtt";
 
@@ -64,29 +73,78 @@ MqttDataProviderPool::MqttDataProviderPool(QObject *parent)
 
 void MqttDataProviderPool::startScanning()
 {
-
     qDebug() << Q_FUNC_INFO;
     emit providerConnected("MQTT_CLOUD");
     emit providersUpdated();
     emit dataProvidersChanged();
 
+#ifdef Q_OS_HTML5
+    QUrl url;
+    url.setHost(QLatin1String(MQTT_BROKER));
+    url.setPort(MQTT_PORT);
+    url.setScheme(QLatin1String("ws"));
+    url.setPath(QLatin1String("/mqtt"));
+
+    m_device->setUrl(url);
+    m_device->setProtocol(m_version == 3 ? "mqttv3.1" : "mqtt");
+
+    qDebug() << "Connecting to broker at " << url;
+
+    connect(m_device, &WebSocketIODevice::socketConnected, [this]() {
+
+        qDebug() << "<<<<<< WebSocket connected, initializing MQTT connection.";
+
+        m_client->setProtocolVersion(m_version == 3 ? QMqttClient::MQTT_3_1 : QMqttClient::MQTT_3_1_1);
+        m_client->setTransport(m_device, QMqttClient::IODevice);
+
+        connect(m_client, &QMqttClient::connected, [this]() {
+            qDebug() << "<<<<<< MQTT connection established";
+
+        QSharedPointer<QMqttSubscription> sub = m_client->subscribe(QLatin1String("sensors/active"));
+
+        //QMqttSubscription *mqttSubscription = sub.data();
+
+        connect(sub.data(), &QMqttSubscription::stateChanged,
+                [](QMqttSubscription::SubscriptionState s) {
+            qDebug() << "Subscription state changed:" << s;
+        });
+
+        connect(sub.data(), &QMqttSubscription::messageReceived, this, &MqttDataProviderPool::deviceUpdate);
+        });
+
+        connect(m_client, &QMqttClient::disconnected, [this]() {
+            qDebug() << "Pool client disconnected";
+        });
+
+        m_client->connectToHost();
+    });
+#else
     m_client->setHostname(QLatin1String(MQTT_BROKER));
     m_client->setPort(MQTT_PORT);
     m_client->setUsername(QByteArray(MQTT_USERNAME));
     m_client->setPassword(QByteArray(MQTT_PASSWORD));
 
     connect(m_client, &QMqttClient::connected, [this]() {
-        auto sub = m_client->subscribe(QLatin1String("sensors/active"));
-        connect(sub, &QMqttSubscription::messageReceived, this, &MqttDataProviderPool::deviceUpdate);
+        QSharedPointer<QMqttSubscription> sub = m_client->subscribe(QLatin1String("sensors/active"));
+        connect(sub.data(), &QMqttSubscription::messageReceived, this, &MqttDataProviderPool::deviceUpdate);
     });
     connect(m_client, &QMqttClient::disconnected, [this]() {
         qDebug() << "Pool client disconnected";
     });
+
     m_client->connectToHost();
+#endif
+#ifdef Q_OS_HTML5
+    if (!m_device->open(QIODevice::ReadWrite))
+        qDebug() << "Could not open socket device";
+#endif
 }
 
 void MqttDataProviderPool::deviceUpdate(const QMqttMessage &msg)
 {
+
+    qDebug() << Q_FUNC_INFO << msg.topic() << msg.payload();
+
     static QSet<QString> knownDevices;
     // Registration is: deviceName>Online
     const QByteArrayList payload = msg.payload().split('>');
@@ -96,6 +154,8 @@ void MqttDataProviderPool::deviceUpdate(const QMqttMessage &msg)
 
     bool updateRequired = false;
     if (deviceStatus == QLatin1String("Online")) { // new device
+
+        qDebug() << Q_FUNC_INFO << "new device";
         // Skip local items
         if (deviceName.startsWith(QSysInfo::machineHostName()))
             return;
@@ -110,6 +170,7 @@ void MqttDataProviderPool::deviceUpdate(const QMqttMessage &msg)
             updateRequired = true;
         }
     } else if (deviceStatus == QLatin1String("Offline")) { // device died
+        qDebug() << Q_FUNC_INFO << "device died";
         knownDevices.remove(deviceName);
         updateRequired = true;
         for (auto prov : m_dataProviders) {
