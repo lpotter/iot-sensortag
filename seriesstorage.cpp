@@ -68,6 +68,7 @@ SeriesStorage::SeriesStorage(QObject *parent) : QObject(parent)
 
 void SeriesStorage::setDataProviderPool(DataProviderPool *pool)
 {
+    qDebug() << Q_FUNC_INFO << pool->property("name");
     m_providerPool = pool;
     if (!m_providerPool)
         return;
@@ -95,6 +96,7 @@ void SeriesStorage::setMagnetoMeterSeries(QAbstractSeries *xSeries, QAbstractSer
 
 void SeriesStorage::dataProviderPoolChanged()
 {
+    qDebug() << Q_FUNC_INFO;
     m_gyroProvider = m_providerPool->currentProvider();
     if (m_gyroProvider)
         connect(m_gyroProvider, &SensorTagDataProvider::rotationValuesChanged,

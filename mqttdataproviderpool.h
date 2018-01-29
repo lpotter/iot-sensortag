@@ -51,7 +51,8 @@
 #define MQTTDATAPROVIDERPOOL_H
 
 #include "dataproviderpool.h"
-#ifdef Q_OS_HTML5
+
+#ifdef Q_USE_WEBSOCKETS
 #include "websocketiodevice.h"
 #endif
 
@@ -76,7 +77,7 @@ public Q_SLOTS:
 
 private:
     QMqttClient *m_client;
-#ifdef Q_OS_HTML5
+#ifdef Q_USE_WEBSOCKETS
     WebSocketIODevice *m_device;
     int m_version;
 #endif

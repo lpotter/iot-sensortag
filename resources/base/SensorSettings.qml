@@ -66,6 +66,8 @@ Rectangle {
     function createSensorConnection() {
         clickBait.deactivate()
 
+            console.log("createSensorConnection");
+
         var currentPool = getCurrentPool();
         if (currentPool.dataProviders[sensorListView.currentIndex] === singleSensorSource) {
             console.log("Same data provider selected, nothing to change...")
@@ -76,6 +78,7 @@ Rectangle {
             singleSensorSource.endDataFetching();
         // UI gets information about the intended setup of the
         // sensor even though they have not been really discovered yet
+        console.log("XXXXXXXXXXXXXXXXXXXXXXXXX sensorListView.currentIndex" + sensorListView.currentIndex)
         if (currentPool) {
             singleSensorSource = currentPool.dataProviders[sensorListView.currentIndex]
             currentPool.currentProviderIndex = sensorListView.currentIndex
@@ -144,7 +147,11 @@ Rectangle {
 
         MouseArea {
             anchors.fill: parent
-            onClicked: localSelected = !localSelected
+            onClicked: {
+
+                localSelected = !localSelected
+                console.log("clicked localSelected"+localSelected);
+            }
         }
     }
 

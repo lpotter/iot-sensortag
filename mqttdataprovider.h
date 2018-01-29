@@ -64,10 +64,10 @@ class MqttDataProvider : public SensorTagDataProvider
 public:
     explicit MqttDataProvider(QString id, QMqttClient *client, QObject *parent = 0);
 
-    bool startDataFetching();
-    void endDataFetching();
-    QString sensorType() const;
-    QString versionString() const;
+    bool startDataFetching() override;
+    void endDataFetching() override;
+    QString sensorType() const  override;
+    QString versionString() const  override;
     void reset() override;
 
 public slots:
@@ -78,10 +78,6 @@ public slots:
 private:
     QTimer *m_pollTimer;
     QMqttClient *m_client;
-#ifndef Q_OS_HTML5
     QSharedPointer<QMqttSubscription> m_subscription;
-#else
-    QMqttSubscription *m_subscription;
-#endif
 };
 #endif // MQTTDATAPROVIDER_H

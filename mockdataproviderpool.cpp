@@ -69,14 +69,20 @@ void MockDataProviderPool::startScanning()
     MockDataProvider* p = new MockDataProvider("MOCK_PROVIDER_1", this);
     p->setTagType(SensorTagDataProvider::ObjectTemperature | SensorTagDataProvider::AmbientTemperature | SensorTagDataProvider::Rotation);
     m_dataProviders.push_back(p);
+
     MockDataProvider* p2 = new MockDataProvider("MOCK_PROVIDER_2", this);
     p2->setTagType(SensorTagDataProvider::Humidity | SensorTagDataProvider::Light | SensorTagDataProvider::Accelometer);
     m_dataProviders.push_back(p2);
+
     MockDataProvider *p3 = new MockDataProvider("MOCK_PROVIDER_3", this);
     p3->setTagType(SensorTagDataProvider::Magnetometer | SensorTagDataProvider::AirPressure | SensorTagDataProvider::Altitude);
     m_dataProviders.push_back(p3);
-    for (int i=0; i < m_dataProviders.length(); i++)
+
+    for (int i=0; i < m_dataProviders.length(); i++) {
+
+        qDebug() << Q_FUNC_INFO << m_dataProviders.at(i)->id();
         emit providerConnected(m_dataProviders.at(i)->id());
+    }
 
     // Stop scanning as we already have a provider
     finishScanning();

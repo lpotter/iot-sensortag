@@ -73,19 +73,24 @@ HEADERS += \
     seriesstorage.h \
     mockdataproviderpool.h
 
-emscripten: {
-message("using emscripten")
-  # DEFINES += RUNS_AS_HOST
- #  DEFINES += MQTT_UPLOAD
 
-    QT += websockets mqtt
+qtHaveModule(websockets) {
+    QT += websockets
+    DEFINES += Q_USE_WEBSOCKETS
+    SOURCES += \
+        websocketiodevice.cpp
+    HEADERS += \
+        websocketiodevice.h
+}
+
+emscripten: {
+    QT += mqtt
 
     CONFIG += static
 
     SOURCES += \
         sensortagdataproviderpool.cpp \
         demodataproviderpool.cpp \
-        websocketiodevice.cpp \
         mqttupdate.cpp \
         mqttdataproviderpool.cpp \
         mqttdataprovider.cpp \
@@ -93,7 +98,6 @@ message("using emscripten")
     HEADERS += \
         sensortagdataproviderpool.h \
         demodataproviderpool.h \
-        websocketiodevice.h \
         mqttupdate.h \
         mqttdataproviderpool.h \
         mqttdataprovider.h \

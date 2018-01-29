@@ -56,8 +56,8 @@
 #endif
 #include <QObject>
 #ifndef Q_OS_HTML5
-#include <QBluetoothDeviceDiscoveryAgent>
-#include <QBluetoothDeviceInfo>
+#include <QtBluetooth/QBluetoothDeviceDiscoveryAgent>
+#include <QtBluetooth/QBluetoothDeviceInfo>
 #endif
 #include <QList>
 

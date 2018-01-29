@@ -56,8 +56,6 @@
 WebSocketIODevice::WebSocketIODevice(QObject *parent)
     : QIODevice(parent)
 {
-
-    qDebug() << Q_FUNC_INFO;
     connect(&m_socket, &QWebSocket::connected, this, &WebSocketIODevice::onSocketConnected);
     connect(&m_socket, &QWebSocket::binaryMessageReceived, this, &WebSocketIODevice::handleBinaryMessage);
 }
@@ -69,7 +67,6 @@ WebSocketIODevice::~WebSocketIODevice()
 
 bool WebSocketIODevice::open(QIODevice::OpenMode mode)
 {
-    qDebug() << Q_FUNC_INFO;
     // Cannot use an URL because of missing sub protocol support
     // Have to use QNetworkRequest, see QTBUG-38742
     QNetworkRequest request;
@@ -89,8 +86,6 @@ void WebSocketIODevice::close()
 
 qint64 WebSocketIODevice::readData(char *data, qint64 maxlen)
 {
-
-    qDebug() << Q_FUNC_INFO;
     qint64 bytesToRead = qMin(maxlen, (qint64)m_buffer.size());
     memcpy(data, m_buffer.constData(), bytesToRead);
     m_buffer = m_buffer.right(m_buffer.size() - bytesToRead);
@@ -100,7 +95,6 @@ qint64 WebSocketIODevice::readData(char *data, qint64 maxlen)
 qint64 WebSocketIODevice::writeData(const char *data, qint64 len)
 {
     QByteArray msg(data, len);
-    qDebug() << Q_FUNC_INFO << msg;
     const int length = m_socket.sendBinaryMessage(msg);
     return length;
 }
@@ -117,6 +111,7 @@ void WebSocketIODevice::setProtocol(const QByteArray &data)
 
 void WebSocketIODevice::handleBinaryMessage(const QByteArray &msg)
 {
+    qDebug() << Q_FUNC_INFO << msg;
     m_buffer.append(msg);
     emit readyRead();
     QCoreApplication::processEvents();
@@ -124,7 +119,6 @@ void WebSocketIODevice::handleBinaryMessage(const QByteArray &msg)
 
 void WebSocketIODevice::onSocketConnected()
 {
-    qDebug() << Q_FUNC_INFO;
     emit socketConnected();
     QCoreApplication::processEvents();
 }

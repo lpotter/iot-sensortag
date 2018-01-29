@@ -53,19 +53,23 @@
 
 #include <QtCore/QDebug>
 #include <QObject>
+#include <QCoreApplication>
 
-#ifdef Q_OS_HTML5
+#ifdef Q_USE_WEBSOCKETS
 #include "websocketiodevice.h"
 #endif
 
 MqttDataProviderPool::MqttDataProviderPool(QObject *parent)
     : DataProviderPool(parent)
     , m_client(new QMqttClient(this))
-#ifdef Q_OS_HTML5
+#ifdef Q_USE_WEBSOCKETS
     , m_device(new WebSocketIODevice(this))
     , m_version(4)
 #endif
 {
+#ifdef Q_OS_HTML5
+    qRegisterMetaType<QMqttMessage>();
+#endif
     m_poolName = "Mqtt";
 
     qDebug() << Q_FUNC_INFO;
@@ -73,12 +77,8 @@ MqttDataProviderPool::MqttDataProviderPool(QObject *parent)
 
 void MqttDataProviderPool::startScanning()
 {
-    qDebug() << Q_FUNC_INFO;
-    emit providerConnected("MQTT_CLOUD");
-    emit providersUpdated();
-    emit dataProvidersChanged();
+#ifdef Q_USE_WEBSOCKETS
 
-#ifdef Q_OS_HTML5
     QUrl url;
     url.setHost(QLatin1String(MQTT_BROKER));
     url.setPort(MQTT_PORT);
@@ -102,12 +102,10 @@ void MqttDataProviderPool::startScanning()
 
         QSharedPointer<QMqttSubscription> sub = m_client->subscribe(QLatin1String("sensors/active"));
 
-        //QMqttSubscription *mqttSubscription = sub.data();
-
-        connect(sub.data(), &QMqttSubscription::stateChanged,
-                [](QMqttSubscription::SubscriptionState s) {
-            qDebug() << "Subscription state changed:" << s;
-        });
+//        connect(sub.data(), &QMqttSubscription::stateChanged,
+//                [](QMqttSubscription::SubscriptionState s) {
+//            qDebug() << "Subscription state changed:" << s;
+//        });
 
         connect(sub.data(), &QMqttSubscription::messageReceived, this, &MqttDataProviderPool::deviceUpdate);
         });
@@ -134,28 +132,43 @@ void MqttDataProviderPool::startScanning()
 
     m_client->connectToHost();
 #endif
-#ifdef Q_OS_HTML5
+#ifdef Q_USE_WEBSOCKETS
     if (!m_device->open(QIODevice::ReadWrite))
         qDebug() << "Could not open socket device";
 #endif
+
+    qDebug() << Q_FUNC_INFO;
+    emit providerConnected("MQTT_CLOUD");
+    emit providersUpdated();
+    emit dataProvidersChanged();
+    emit scanFinished();
+
+    QCoreApplication::processEvents();
+
 }
 
 void MqttDataProviderPool::deviceUpdate(const QMqttMessage &msg)
 {
 
     qDebug() << Q_FUNC_INFO << msg.topic() << msg.payload();
-
     static QSet<QString> knownDevices;
+
+    bool updateRequired = false;
     // Registration is: deviceName>Online
     const QByteArrayList payload = msg.payload().split('>');
+
     const QString deviceName = payload.first();
     const QString deviceStatus = payload.at(1);
     const QString subName = QString::fromLocal8Bit("sensors/%1/#").arg(deviceName);
 
-    bool updateRequired = false;
+    qDebug() << Q_FUNC_INFO
+             << "deviceName" << deviceName
+             << "deviceStatus" << deviceStatus
+             << "subName" << subName;
+
     if (deviceStatus == QLatin1String("Online")) { // new device
 
-        qDebug() << Q_FUNC_INFO << "new device";
+        qDebug() << Q_FUNC_INFO << "new device" << knownDevices << deviceName;
         // Skip local items
         if (deviceName.startsWith(QSysInfo::machineHostName()))
             return;

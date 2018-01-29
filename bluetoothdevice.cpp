@@ -49,9 +49,9 @@
 ****************************************************************************/
 #include "bluetoothdevice.h"
 
-#include <QBluetoothDeviceDiscoveryAgent>
-#include <QBluetoothDeviceInfo>
-#include <QLowEnergyService>
+#include <QtBluetooth/QBluetoothDeviceDiscoveryAgent>
+#include <QtBluetooth/QBluetoothDeviceInfo>
+#include <QtBluetooth/QLowEnergyService>
 #include <QLoggingCategory>
 #include <QList>
 #include <QTimer>

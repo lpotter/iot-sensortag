@@ -60,6 +60,7 @@ class WebSocketIODevice : public QIODevice
 public:
     WebSocketIODevice(QObject *parent = nullptr);
     ~WebSocketIODevice();
+
     bool open(OpenMode mode) override;
     void close() override;
 
@@ -68,6 +69,7 @@ public:
 
     void setUrl(const QUrl &url);
     void setProtocol(const QByteArray &data);
+
 Q_SIGNALS:
     void socketConnected();
 

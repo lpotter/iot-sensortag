@@ -49,13 +49,13 @@
 ****************************************************************************/
 #include "dataproviderpool.h"
 #include <QDebug>
+#include <QCoreApplication>
 
 DataProviderPool::DataProviderPool(QObject *parent)
     : QObject(parent)
     , m_currentProvider(nullptr)
     , m_currentProviderIndex(-1)
 {
-    qDebug() << Q_FUNC_INFO;
 }
 
 DataProviderPool::DataProviderPool(QString poolName, QObject *parent)
@@ -64,7 +64,6 @@ DataProviderPool::DataProviderPool(QString poolName, QObject *parent)
     , m_currentProvider(nullptr)
     , m_currentProviderIndex(-1)
 {
-    qDebug() << Q_FUNC_INFO;
 }
 
 void DataProviderPool::startScanning()
@@ -83,6 +82,7 @@ void DataProviderPool::disconnectProvider(const QString &id)
 
 QQmlListProperty<SensorTagDataProvider> DataProviderPool::dataProviders()
 {
+    qDebug() << Q_FUNC_INFO << m_dataProviders.count();
    return QQmlListProperty<SensorTagDataProvider>(this, m_dataProviders);
 }
 
@@ -103,11 +103,17 @@ int DataProviderPool::currentProviderIndex() const
 
 void DataProviderPool::setCurrentProviderIndex(int currentProviderIndex)
 {
+
+    qDebug() << Q_FUNC_INFO << currentProviderIndex;
     if (m_currentProviderIndex == currentProviderIndex)
         return;
 
     m_currentProviderIndex = currentProviderIndex;
     m_currentProvider = m_dataProviders.at(m_currentProviderIndex);
+    qDebug() << Q_FUNC_INFO << "m_currentProvider" << m_currentProvider
+             << m_dataProviders.count();
+
     emit currentProviderIndexChanged(m_currentProviderIndex);
     emit currentProviderChanged(m_currentProvider);
+    QCoreApplication::processEvents();
 }

@@ -66,7 +66,6 @@ MqttDataProvider::MqttDataProvider(QString id, QMqttClient *client, QObject *par
 {
     intervalRotation = 200;
 
-    qDebug() << Q_FUNC_INFO;
     m_pollTimer = new QTimer(this);
     m_pollTimer->setInterval(intervalRotation);
     m_pollTimer->setSingleShot(false);
@@ -78,8 +77,8 @@ bool MqttDataProvider::startDataFetching()
     qDebug() << Q_FUNC_INFO;
     const QString subName = QString::fromLocal8Bit("sensors/%1/#").arg(m_id);
 
-    m_subscription = m_client->subscribe(subName).data();
-    connect(m_subscription, &QMqttSubscription::messageReceived,
+    m_subscription = m_client->subscribe(subName);
+    connect(m_subscription.data(), &QMqttSubscription::messageReceived,
             this, &MqttDataProvider::messageReceived);
     return true;
 }
@@ -87,7 +86,7 @@ bool MqttDataProvider::startDataFetching()
 void MqttDataProvider::endDataFetching()
 {
     if (m_subscription) {
-        disconnect(m_subscription, &QMqttSubscription::messageReceived,
+        disconnect(m_subscription.data(), &QMqttSubscription::messageReceived,
                    this, &MqttDataProvider::messageReceived);
         m_subscription->unsubscribe();
         m_subscription = nullptr;
@@ -201,6 +200,8 @@ void MqttDataProvider::parseMessage(const QString &content, const QString &topic
 
 void MqttDataProvider::dataTimeout()
 {
+
+    qDebug() << Q_FUNC_INFO;
     emit relativeHumidityChanged();
     emit lightIntensityChanged();
     emit infraredAmbientTemperatureChanged();
