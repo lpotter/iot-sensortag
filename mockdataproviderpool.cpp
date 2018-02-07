@@ -51,37 +51,33 @@
 #include "sensortagdataproviderpool.h"
 #include "mockdataprovider.h"
 #include <QDebug>
+#include <QCoreApplication>
 
 MockDataProviderPool::MockDataProviderPool(QObject *parent)
     : DataProviderPool("Demo", parent)
     , m_cloudProvider(0)
 {
-    qDebug() << Q_FUNC_INFO;
 }
 
 void MockDataProviderPool::startScanning()
 {
-
-    qDebug() << Q_FUNC_INFO;
     qDeleteAll(m_dataProviders);
     m_dataProviders.clear();
 
     MockDataProvider* p = new MockDataProvider("MOCK_PROVIDER_1", this);
     p->setTagType(SensorTagDataProvider::ObjectTemperature | SensorTagDataProvider::AmbientTemperature | SensorTagDataProvider::Rotation);
     m_dataProviders.push_back(p);
+#ifndef Q_OS_HTML5
+    p = new MockDataProvider("MOCK_PROVIDER_2", this);
+    p->setTagType(SensorTagDataProvider::Humidity | SensorTagDataProvider::Light | SensorTagDataProvider::Accelometer);
+    m_dataProviders.push_back(p);
 
-    MockDataProvider* p2 = new MockDataProvider("MOCK_PROVIDER_2", this);
-    p2->setTagType(SensorTagDataProvider::Humidity | SensorTagDataProvider::Light | SensorTagDataProvider::Accelometer);
-    m_dataProviders.push_back(p2);
-
-    MockDataProvider *p3 = new MockDataProvider("MOCK_PROVIDER_3", this);
-    p3->setTagType(SensorTagDataProvider::Magnetometer | SensorTagDataProvider::AirPressure | SensorTagDataProvider::Altitude);
-    m_dataProviders.push_back(p3);
-
+    p = new MockDataProvider("MOCK_PROVIDER_3", this);
+    p->setTagType(SensorTagDataProvider::Magnetometer | SensorTagDataProvider::AirPressure | SensorTagDataProvider::Altitude);
+    m_dataProviders.push_back(p);
+#endif
     for (int i=0; i < m_dataProviders.length(); i++) {
-
-        qDebug() << Q_FUNC_INFO << m_dataProviders.at(i)->id();
-        emit providerConnected(m_dataProviders.at(i)->id());
+        emit providerConnected(p->id());
     }
 
     // Stop scanning as we already have a provider
@@ -90,7 +86,6 @@ void MockDataProviderPool::startScanning()
 
 void MockDataProviderPool::finishScanning()
 {
-    qDebug() << Q_FUNC_INFO;
     if (m_dataProviders.length()) {
         // For mock data we have only one provider and
         // it servers as the provider to the cloud, too

@@ -172,7 +172,7 @@ Rectangle {
                                           : sourceSelector.deselectedBackgroundColor
             radius: 5
             height: 30
-            width: parent.width
+            width: parent ? parent.width : buttonRect.width
             Text {
                 text: providerId
                 anchors.centerIn: parent

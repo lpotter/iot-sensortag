@@ -71,6 +71,7 @@
 #include "mqttupdate.h"
 #include "mqttdataprovider.h"
 #include "mqttdataproviderpool.h"
+#include "demodataproviderpool.h"
 #endif
 #include <QApplication>
 #include <QQmlApplicationEngine>
@@ -121,7 +122,7 @@ int main(int argc, char *argv[])
 #endif
 #ifdef Q_OS_HTML5
     remoteProviderPool = new MqttDataProviderPool;
-    localProviderPool = new MockDataProviderPool;
+    localProviderPool = new DemoDataProviderPool;
 #endif
 #if defined(RUNS_AS_HOST)
 //    localProviderPool = new MockDataProviderPool;
