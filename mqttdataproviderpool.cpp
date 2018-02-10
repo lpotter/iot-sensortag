@@ -67,9 +67,7 @@ MqttDataProviderPool::MqttDataProviderPool(QObject *parent)
     , m_version(4)
 #endif
 {
-#ifdef Q_OS_HTML5
-    qRegisterMetaType<QMqttMessage>();
-#endif
+
     m_poolName = "Mqtt";
 
     qDebug() << Q_FUNC_INFO;

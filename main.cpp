@@ -68,6 +68,7 @@
 #endif
 #include "seriesstorage.h"
 #ifdef Q_OS_HTML5
+#include <emscripten.h>
 #include "mqttupdate.h"
 #include "mqttdataprovider.h"
 #include "mqttdataproviderpool.h"
@@ -163,8 +164,11 @@ int main(int argc, char *argv[])
                     false;
 #endif
 #ifdef Q_OS_HTML5
-    int appWidth = 1024;
-    int appHeight = 860;
+    int w, h, fs;
+    emscripten_get_canvas_size(&w, &h, &fs);
+
+    int appWidth = w;
+    int appHeight = h;
 #else
     int appWidth = 1920;
     int appHeight = 1080;
