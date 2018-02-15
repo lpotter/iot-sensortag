@@ -169,6 +169,7 @@ int main(int argc, char *argv[])
 
     int appWidth = w;
     int appHeight = h;
+    fullScreen = true;
 #else
     int appWidth = 1920;
     int appHeight = 1080;
