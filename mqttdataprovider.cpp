@@ -78,7 +78,7 @@ bool MqttDataProvider::startDataFetching()
     const QString subName = QString::fromLocal8Bit("sensors/%1/#").arg(m_id);
 
     m_subscription = m_client->subscribe(subName);
-    connect(m_subscription.data(), &QMqttSubscription::messageReceived,
+    connect(m_subscription, &QMqttSubscription::messageReceived,
             this, &MqttDataProvider::messageReceived);
     return true;
 }
@@ -86,7 +86,7 @@ bool MqttDataProvider::startDataFetching()
 void MqttDataProvider::endDataFetching()
 {
     if (m_subscription) {
-        disconnect(m_subscription.data(), &QMqttSubscription::messageReceived,
+        disconnect(m_subscription, &QMqttSubscription::messageReceived,
                    this, &MqttDataProvider::messageReceived);
         m_subscription->unsubscribe();
         m_subscription = nullptr;
@@ -110,7 +110,7 @@ void MqttDataProvider::reset()
 void MqttDataProvider::messageReceived(const QMqttMessage &msg)
 {
     qDebug() << Q_FUNC_INFO;
-    parseMessage(msg.payload(), msg.topic());
+    parseMessage(msg.payload(), msg.topic().name());
     if (!m_pollTimer->isActive())
         m_pollTimer->start();
 }

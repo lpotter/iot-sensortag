@@ -98,14 +98,14 @@ void MqttDataProviderPool::startScanning()
         connect(m_client, &QMqttClient::connected, [this]() {
             qDebug() << "<<<<<< MQTT connection established";
 
-        QSharedPointer<QMqttSubscription> sub = m_client->subscribe(QLatin1String("sensors/active"));
+        QMqttSubscription *sub = m_client->subscribe(QLatin1String("sensors/active"));
 
 //        connect(sub.data(), &QMqttSubscription::stateChanged,
 //                [](QMqttSubscription::SubscriptionState s) {
 //            qDebug() << "Subscription state changed:" << s;
 //        });
 
-        connect(sub.data(), &QMqttSubscription::messageReceived, this, &MqttDataProviderPool::deviceUpdate);
+        connect(sub, &QMqttSubscription::messageReceived, this, &MqttDataProviderPool::deviceUpdate);
         });
 
         connect(m_client, &QMqttClient::disconnected, [this]() {

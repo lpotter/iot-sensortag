@@ -68,6 +68,8 @@ SeriesStorage::SeriesStorage(QObject *parent) : QObject(parent)
 
 void SeriesStorage::setDataProviderPool(DataProviderPool *pool)
 {
+    if (!pool)
+        return;
     qDebug() << Q_FUNC_INFO << pool->property("name");
     m_providerPool = pool;
     if (!m_providerPool)
