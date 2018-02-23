@@ -160,7 +160,11 @@ int main(int argc, char *argv[])
 
     QString mainFile;
     QUrl styleFile;
+#ifdef UI_SMALL
     QString uiVariant = QStringLiteral("small");
+#else
+    QString uiVariant = QStringLiteral("watch");
+#endif
     bool fullScreen =
 #ifdef Q_OS_ANDROID
                     true;
