@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
     // QtChars mandate using QApplication as it uses the graphics view fw
     QApplication app(argc, argv);
 
- #ifndef Q_OS_HTML5
+#ifndef Q_OS_HTML5
     QFontDatabase::addApplicationFont(QString::fromLatin1(":/resources/base/fonts/titilliumweb/TitilliumWeb-Regular.ttf"));
     app.setFont(QFont("Titillium Web", 13));
 #endif

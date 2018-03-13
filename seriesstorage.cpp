@@ -132,7 +132,7 @@ void SeriesStorage::changeRotationSeries()
     updatePoints(m_gyroListZ, gyroSeriesIndex, m_gyroProvider->getRotationZ(), maxGyroReadings);
     m_gyroZ->replace(m_gyroListZ);
 
-    if (gyroSeriesIndex >= maxGyroReadings) {
+    if (m_gyroX->attachedAxes().count() > 0 && gyroSeriesIndex >= maxGyroReadings) {
         QAbstractAxis *axis = m_gyroX->attachedAxes().at(0);
         axisMin++;
         axisMax++;
@@ -161,7 +161,7 @@ void SeriesStorage::changeMagnetoSeries()
                  m_magnetoProvider->getMagnetometerMicroT_zAxis(), maxMagneticReadings);
     m_magnetoZ->replace(m_magnetoListZ);
 
-    if (magneticSeriesIndex >= maxMagneticReadings) {
+    if (m_magnetoX->attachedAxes().count() > 0 && magneticSeriesIndex >= maxMagneticReadings) {
         QAbstractAxis *axis = m_magnetoX->attachedAxes().at(0);
         axisMin++;
         axisMax++;
@@ -187,13 +187,12 @@ void SeriesStorage::changeTemperatureSeries()
 
     if (m_temperatureList.size() >= maxTemperatureReadings)
         m_temperatureList.removeFirst();
-
-    if (temperatureSeriesIndex >= maxTemperatureReadings) {
+    if (m_temperature->attachedAxes().count() > 0 && temperatureSeriesIndex >= maxTemperatureReadings) {
         QAbstractAxis *axis = m_temperature->attachedAxes().at(0);
         axisMin++;
         axisMax++;
         axis->setRange(axisMin, axisMax);
+        m_temperature->replace(m_temperatureList);
+        temperatureSeriesIndex++;
     }
-    m_temperature->replace(m_temperatureList);
-    temperatureSeriesIndex++;
 }
