@@ -143,7 +143,7 @@ Item {
         anchors.rightMargin: 16
         horizontalAlignment: Text.AlignRight
         font.pixelSize: Style.topToolbarSmallFontSize
-        font.capitalization: Font.AllUppercase
+ //       font.capitalization: Font.AllUppercase
         visible: rotationMain.visible
         MouseArea {
             anchors.fill: parent
