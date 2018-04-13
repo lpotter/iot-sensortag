@@ -74,6 +74,7 @@ public:
 
 public Q_SLOTS:
     void deviceUpdate(const QMqttMessage &msg);
+    void serverChanged(const QString &name);
 
 private:
     QMqttClient *m_client;
@@ -81,6 +82,10 @@ private:
     WebSocketIODevice *m_device;
     int m_version;
 #endif
+    int mqttPort;
+    QString mqttBroker;
+    QString mqttUsername;
+    QString mqttPassword;
 };
 
 #endif // MQTTDATAPROVIDERPOOL_H

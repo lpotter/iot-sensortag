@@ -67,7 +67,6 @@ void MockDataProviderPool::startScanning()
     MockDataProvider* p = new MockDataProvider("MOCK_PROVIDER_1", this);
     p->setTagType(SensorTagDataProvider::ObjectTemperature | SensorTagDataProvider::AmbientTemperature | SensorTagDataProvider::Rotation);
     m_dataProviders.push_back(p);
-#ifndef Q_OS_HTML5
     p = new MockDataProvider("MOCK_PROVIDER_2", this);
     p->setTagType(SensorTagDataProvider::Humidity | SensorTagDataProvider::Light | SensorTagDataProvider::Accelometer);
     m_dataProviders.push_back(p);
@@ -75,7 +74,6 @@ void MockDataProviderPool::startScanning()
     p = new MockDataProvider("MOCK_PROVIDER_3", this);
     p->setTagType(SensorTagDataProvider::Magnetometer | SensorTagDataProvider::AirPressure | SensorTagDataProvider::Altitude);
     m_dataProviders.push_back(p);
-#endif
     for (int i=0; i < m_dataProviders.length(); i++) {
         emit providerConnected(p->id());
     }

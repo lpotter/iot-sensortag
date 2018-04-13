@@ -62,6 +62,7 @@ class DataProviderPool : public QObject
     Q_PROPERTY(SensorTagDataProvider* currentProvider READ currentProvider NOTIFY currentProviderChanged)
     Q_PROPERTY(int currentProviderIndex READ currentProviderIndex WRITE setCurrentProviderIndex NOTIFY currentProviderIndexChanged)
     Q_PROPERTY(QString name MEMBER m_poolName CONSTANT)
+    Q_PROPERTY(QString serverName READ serverName WRITE setServerName NOTIFY serverNameChanged)
 
 public:
     Q_INVOKABLE virtual void startScanning();
@@ -73,6 +74,9 @@ public:
     QQmlListProperty<SensorTagDataProvider> dataProviders();
 
     virtual SensorTagDataProvider *providerForCloud() const;
+
+    QString serverName() { return m_serverString; }
+    void setServerName(const QString &server);
 
 
 public slots:
@@ -89,6 +93,7 @@ signals:
     void dataProvidersChanged();
     void currentProviderChanged(SensorTagDataProvider* currentProvider);
     void currentProviderIndexChanged(int currentProviderIndex);
+    void serverNameChanged(QString server);
 
 protected:
     explicit DataProviderPool(QObject *parent = 0);
@@ -99,6 +104,7 @@ protected:
     QString m_poolName;
     SensorTagDataProvider *m_currentProvider;
     int m_currentProviderIndex;
+    QString m_serverString;
 };
 
 #endif // DATAPROVIDERPOOL_H

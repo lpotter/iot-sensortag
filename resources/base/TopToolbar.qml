@@ -131,7 +131,6 @@ Item {
             onClicked: clickBait.activate(sensorList)
         }
     }
-
     Text {
         id: dateLabel
         property bool showAddress : false
@@ -196,6 +195,24 @@ Item {
             text = text + offsetString
         }
     }
+    TextInput {
+        id: mqttBrokerEdit
+        text: "10.0.0.61:8000"
+        color: "white"
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 16
+        anchors.left: utcGmt.right
+        anchors.leftMargin: 16
+        horizontalAlignment: Text.AlignRight
+        font.pixelSize: Style.topToolbarSmallFontSize
+        visible: rotationMain.visible
+        inputMethodHints: Qt.ImhUrlCharactersOnly
+        onAccepted: {
+            console.log(mqttBrokerEdit.text)
+             mainWindow.remoteProviderPool.serverName = mqttBrokerEdit.text
+        }
+    }
+
 
     Image {
         id: topbar

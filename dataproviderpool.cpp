@@ -117,3 +117,12 @@ void DataProviderPool::setCurrentProviderIndex(int currentProviderIndex)
     emit currentProviderChanged(m_currentProvider);
     QCoreApplication::processEvents();
 }
+
+void DataProviderPool::setServerName(const QString &server)
+{
+    qDebug() << Q_FUNC_INFO << server;
+    if (server != m_serverString) {
+        m_serverString = server;
+        emit serverNameChanged(server);
+    }
+}

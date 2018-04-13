@@ -73,7 +73,7 @@ ApplicationWindow {
             return localProviderPool
         else {
             console.log(remoteProviderPool.name)
-            return remoteProviderPool
+            if (remoteProviderPool) return remoteProviderPool
         }
     }
 

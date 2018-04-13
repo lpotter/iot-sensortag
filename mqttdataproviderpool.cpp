@@ -70,18 +70,25 @@ MqttDataProviderPool::MqttDataProviderPool(QObject *parent)
 
     m_poolName = "Mqtt";
 
+    connect(this,&DataProviderPool::serverNameChanged,this,&MqttDataProviderPool::serverChanged);
+
     qDebug() << Q_FUNC_INFO;
 }
 
 void MqttDataProviderPool::startScanning()
 {
+    qDebug() << Q_FUNC_INFO << mqttBroker;
+    if (mqttBroker.isEmpty())
+        return;
 #ifdef Q_USE_WEBSOCKETS
 
     QUrl url;
-    url.setHost(QLatin1String(MQTT_BROKER));
-    url.setPort(MQTT_PORT);
+    url.setHost(mqttBroker);
+    url.setPort(mqttPort);
     url.setScheme(QLatin1String("ws"));
     url.setPath(QLatin1String("/mqtt"));
+//    url.setUsername(QByteArray(MQTT_USERNAME));
+//    url.setPassword(QByteArray(MQTT_PASSWORD));
 
     m_device->setUrl(url);
     m_device->setProtocol(m_version == 3 ? "mqttv3.1" : "mqtt");
@@ -197,3 +204,16 @@ void MqttDataProviderPool::deviceUpdate(const QMqttMessage &msg)
         emit dataProvidersChanged();
     }
 }
+
+void MqttDataProviderPool::serverChanged(const QString &name)
+{
+    qDebug() << Q_FUNC_INFO << name;
+    QStringList token = name.split(":");
+    if (token.count() > 0)
+        mqttBroker = token.at(0);
+    if (token.count() > 1)
+        mqttPort = token.at(1).toInt();
+
+    startScanning();
+}
+

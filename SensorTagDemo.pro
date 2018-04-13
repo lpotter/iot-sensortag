@@ -17,6 +17,7 @@ DEFINES += QT_NO_FOREACH
 # Specify UI layout to use: UI_SMALL or UI_WATCH
 emscripten {
     DEFINES += UI_SMALL
+
 } else {
     DEFINES += UI_WATCH
 }
@@ -105,7 +106,6 @@ emscripten: {
 
 !emscripten:BLUETOOTH_HOST {
     DEFINES += RUNS_AS_HOST
-
     SOURCES += \
         sensortagdataproviderpool.cpp \
         bluetoothdataprovider.cpp \
