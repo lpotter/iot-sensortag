@@ -50,6 +50,8 @@
 import QtQuick 2.0
 import SensorTag.DataProvider 1.0
 import Style 1.0
+import QtQuick.Controls 1.4
+import QtQuick.Controls.Styles 1.4
 
 Item {
     id: topToolbar
@@ -131,6 +133,7 @@ Item {
             onClicked: clickBait.activate(sensorList)
         }
     }
+
     Text {
         id: dateLabel
         property bool showAddress : false
@@ -195,24 +198,36 @@ Item {
             text = text + offsetString
         }
     }
-    TextInput {
-        id: mqttBrokerEdit
-        text: "10.0.0.61:8000"
-        color: "white"
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 16
-        anchors.left: utcGmt.right
-        anchors.leftMargin: 16
-        horizontalAlignment: Text.AlignRight
-        font.pixelSize: Style.topToolbarSmallFontSize
-        visible: rotationMain.visible
-        inputMethodHints: Qt.ImhUrlCharactersOnly
-        onAccepted: {
-            console.log(mqttBrokerEdit.text)
-             mainWindow.remoteProviderPool.serverName = mqttBrokerEdit.text
-        }
+
+    Loader {
+        id: serverDialogLoader
+        onLoaded: serverDialogLoader.item.open()
     }
 
+    Button {
+        id: serverButton
+        width:  150
+        height: 30
+        visible: remoteProviderPool.name === "Mqtt"
+
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 16
+        anchors.right: parent.right
+        anchors.rightMargin: 26
+        onClicked: {
+            serverDialogLoader.source = "ServerDialog.qml"
+        }
+        style: ButtonStyle {
+            background: Image {
+                source: "images/bg_blue.jpg"
+                anchors.fill: parent
+            }
+            label: Text {
+                color: "white"
+                text: "Server config"
+            }
+        }
+    }
 
     Image {
         id: topbar

@@ -184,3 +184,5 @@ DEPLOY_TO_FS {
     baseFiles.path = /opt/$${TARGET}/resources
     INSTALLS += baseFiles uiVariant
 }
+
+FORMS +=

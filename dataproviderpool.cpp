@@ -126,3 +126,21 @@ void DataProviderPool::setServerName(const QString &server)
         emit serverNameChanged(server);
     }
 }
+
+void DataProviderPool::setServerUserName(const QString &user)
+{
+    qDebug() << Q_FUNC_INFO << user;
+    if (user != m_serverUserName) {
+        m_serverUserName = user;
+        emit serverUserNameChanged(user);
+    }
+}
+
+void DataProviderPool::setServerPassword(const QString &pass)
+{
+    qDebug() << Q_FUNC_INFO << pass;
+    if (pass != m_serverPassword) {
+        m_serverPassword = pass;
+        emit serverPasswordChanged(pass);
+    }
+}

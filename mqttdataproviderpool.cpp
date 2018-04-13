@@ -87,8 +87,10 @@ void MqttDataProviderPool::startScanning()
     url.setPort(mqttPort);
     url.setScheme(QLatin1String("ws"));
     url.setPath(QLatin1String("/mqtt"));
-//    url.setUsername(QByteArray(MQTT_USERNAME));
-//    url.setPassword(QByteArray(MQTT_PASSWORD));
+    if (!mqttUsername.isEmpty())
+            url.setUserName(mqttUsername);
+    if (!mqttPassword.isEmpty())
+            url.setPassword(mqttPassword);
 
     m_device->setUrl(url);
     m_device->setProtocol(m_version == 3 ? "mqttv3.1" : "mqtt");
@@ -207,13 +209,19 @@ void MqttDataProviderPool::deviceUpdate(const QMqttMessage &msg)
 
 void MqttDataProviderPool::serverChanged(const QString &name)
 {
-    qDebug() << Q_FUNC_INFO << name;
     QStringList token = name.split(":");
     if (token.count() > 0)
         mqttBroker = token.at(0);
     if (token.count() > 1)
         mqttPort = token.at(1).toInt();
-
-    startScanning();
 }
 
+void MqttDataProviderPool::serverUserChanged(const QString &user)
+{
+    mqttUsername = user;
+}
+
+void MqttDataProviderPool::serverPasswordChanged(const QString &pass)
+{
+    mqttPassword = pass;
+}

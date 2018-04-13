@@ -75,6 +75,8 @@ public:
 public Q_SLOTS:
     void deviceUpdate(const QMqttMessage &msg);
     void serverChanged(const QString &name);
+    void serverUserChanged(const QString &user);
+    void serverPasswordChanged(const QString &pass);
 
 private:
     QMqttClient *m_client;

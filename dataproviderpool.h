@@ -63,6 +63,8 @@ class DataProviderPool : public QObject
     Q_PROPERTY(int currentProviderIndex READ currentProviderIndex WRITE setCurrentProviderIndex NOTIFY currentProviderIndexChanged)
     Q_PROPERTY(QString name MEMBER m_poolName CONSTANT)
     Q_PROPERTY(QString serverName READ serverName WRITE setServerName NOTIFY serverNameChanged)
+    Q_PROPERTY(QString serverUserName READ serverUserName WRITE setServerUserName NOTIFY serverUserNameChanged)
+    Q_PROPERTY(QString serverPassword READ serverPassword WRITE setServerPassword NOTIFY serverPasswordChanged)
 
 public:
     Q_INVOKABLE virtual void startScanning();
@@ -78,6 +80,11 @@ public:
     QString serverName() { return m_serverString; }
     void setServerName(const QString &server);
 
+    QString serverUserName() { return m_serverUserName; }
+    void setServerUserName(const QString &user);
+
+    QString serverPassword() { return m_serverPassword; }
+    void setServerPassword(const QString &pass);
 
 public slots:
     void setCurrentProviderIndex(int currentProviderIndex);
@@ -93,7 +100,10 @@ signals:
     void dataProvidersChanged();
     void currentProviderChanged(SensorTagDataProvider* currentProvider);
     void currentProviderIndexChanged(int currentProviderIndex);
+
     void serverNameChanged(QString server);
+    void serverUserNameChanged(QString user);
+    void serverPasswordChanged(QString password);
 
 protected:
     explicit DataProviderPool(QObject *parent = 0);
@@ -104,7 +114,10 @@ protected:
     QString m_poolName;
     SensorTagDataProvider *m_currentProvider;
     int m_currentProviderIndex;
+
     QString m_serverString;
+    QString m_serverUserName;
+    QString m_serverPassword;
 };
 
 #endif // DATAPROVIDERPOOL_H
