@@ -172,8 +172,8 @@ int main(int argc, char *argv[])
                     false;
 #endif
 #ifdef Q_OS_HTML5
-    int newWidth, newHeight;
-    emscripten_get_canvas_element_size("#canvas", &newWidth, &newHeight);
+    double newWidth, newHeight;
+    emscripten_get_element_css_size("#canvas", &newWidth, &newHeight);
 
     int appWidth = newWidth;
     int appHeight = newHeight;

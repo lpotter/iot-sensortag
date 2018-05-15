@@ -130,7 +130,7 @@ void MqttDataProviderPool::startScanning()
     m_client->setPassword(QByteArray(MQTT_PASSWORD));
 
     connect(m_client, &QMqttClient::connected, [this]() {
-        QSharedPointer<QMqttSubscription> sub = m_client->subscribe(QLatin1String("sensors/active"));
+        QSharedPointer<QMqttSubscription> sub(m_client->subscribe(QLatin1String("sensors/active")));
         connect(sub.data(), &QMqttSubscription::messageReceived, this, &MqttDataProviderPool::deviceUpdate);
     });
     connect(m_client, &QMqttClient::disconnected, [this]() {
