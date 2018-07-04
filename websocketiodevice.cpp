@@ -111,7 +111,6 @@ void WebSocketIODevice::setProtocol(const QByteArray &data)
 
 void WebSocketIODevice::handleBinaryMessage(const QByteArray &msg)
 {
-    qDebug() << Q_FUNC_INFO << msg;
     m_buffer.append(msg);
     emit readyRead();
     QCoreApplication::processEvents();

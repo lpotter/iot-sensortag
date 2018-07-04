@@ -60,10 +60,17 @@
 
 class MqttDataProvider;
 
-#define MQTT_BROKER "10.0.0.61"
+#ifdef Q_OS_HTML5
+#define MQTT_BROKER "10.0.0.4"
+#define MQTT_PORT 1884
+#define MQTT_USERNAME ""
+#define MQTT_PASSWORD ""
+#else
+#define MQTT_BROKER "10.0.0.4"
 #define MQTT_PORT 8000
 #define MQTT_USERNAME ""
 #define MQTT_PASSWORD ""
+#endif
 
 class MqttDataProviderPool : public DataProviderPool
 {

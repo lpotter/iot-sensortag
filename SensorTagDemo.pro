@@ -9,18 +9,15 @@ QT += \
       quick \
       widgets
 
-!emscripten: Qt += bluetooth
-
+!emscripten: {
+    Qt += bluetooth
+    LIBS+=-lQt5Bluetooth
+}
 CONFIG += c++11
 DEFINES += QT_NO_FOREACH
 
 # Specify UI layout to use: UI_SMALL or UI_WATCH
-emscripten {
-    DEFINES += UI_SMALL
-
-} else {
-    DEFINES += UI_WATCH
-}
+DEFINES += UI_SMALL
 
 # To overcome the bug QTBUG-58648, uncomment this define
 # Needed at least for RPi3 and iMX

@@ -70,14 +70,14 @@ MqttDataProviderPool::MqttDataProviderPool(QObject *parent)
 
     m_poolName = "Mqtt";
 
-    connect(this,&DataProviderPool::serverNameChanged,this,&MqttDataProviderPool::serverChanged);
+//    mqttBroker = QString::fromLocal8Bit(MQTT_BROKER);
+//    mqttPort = MQTT_PORT;
 
-    qDebug() << Q_FUNC_INFO;
+    connect(this,&DataProviderPool::serverNameChanged,this,&MqttDataProviderPool::serverChanged);
 }
 
 void MqttDataProviderPool::startScanning()
 {
-    qDebug() << Q_FUNC_INFO << mqttBroker;
     if (mqttBroker.isEmpty())
         return;
 #ifdef Q_USE_WEBSOCKETS
@@ -105,16 +105,10 @@ void MqttDataProviderPool::startScanning()
         m_client->setTransport(m_device, QMqttClient::IODevice);
 
         connect(m_client, &QMqttClient::connected, [this]() {
+
             qDebug() << "<<<<<< MQTT connection established";
-
-        QMqttSubscription *sub = m_client->subscribe(QLatin1String("sensors/active"));
-
-//        connect(sub.data(), &QMqttSubscription::stateChanged,
-//                [](QMqttSubscription::SubscriptionState s) {
-//            qDebug() << "Subscription state changed:" << s;
-//        });
-
-        connect(sub, &QMqttSubscription::messageReceived, this, &MqttDataProviderPool::deviceUpdate);
+            QMqttSubscription *sub = m_client->subscribe(QLatin1String("sensors/active"));
+            connect(sub, &QMqttSubscription::messageReceived, this, &MqttDataProviderPool::deviceUpdate);
         });
 
         connect(m_client, &QMqttClient::disconnected, [this]() {
@@ -130,7 +124,7 @@ void MqttDataProviderPool::startScanning()
     m_client->setPassword(QByteArray(MQTT_PASSWORD));
 
     connect(m_client, &QMqttClient::connected, [this]() {
-        QSharedPointer<QMqttSubscription> sub(m_client->subscribe(QLatin1String("sensors/active")));
+        QSharedPointer<QMqttSubscription> sub(m_client->subscribe(QLatin1String("sensors")));
         connect(sub.data(), &QMqttSubscription::messageReceived, this, &MqttDataProviderPool::deviceUpdate);
     });
     connect(m_client, &QMqttClient::disconnected, [this]() {
@@ -144,20 +138,14 @@ void MqttDataProviderPool::startScanning()
         qDebug() << "Could not open socket device";
 #endif
 
-    qDebug() << Q_FUNC_INFO;
     emit providerConnected("MQTT_CLOUD");
     emit providersUpdated();
     emit dataProvidersChanged();
     emit scanFinished();
-
-    QCoreApplication::processEvents();
-
 }
 
 void MqttDataProviderPool::deviceUpdate(const QMqttMessage &msg)
 {
-
-    qDebug() << Q_FUNC_INFO << msg.topic() << msg.payload();
     static QSet<QString> knownDevices;
 
     bool updateRequired = false;
@@ -168,14 +156,7 @@ void MqttDataProviderPool::deviceUpdate(const QMqttMessage &msg)
     const QString deviceStatus = payload.at(1);
     const QString subName = QString::fromLocal8Bit("sensors/%1/#").arg(deviceName);
 
-    qDebug() << Q_FUNC_INFO
-             << "deviceName" << deviceName
-             << "deviceStatus" << deviceStatus
-             << "subName" << subName;
-
     if (deviceStatus == QLatin1String("Online")) { // new device
-
-        qDebug() << Q_FUNC_INFO << "new device" << knownDevices << deviceName;
         // Skip local items
         if (deviceName.startsWith(QSysInfo::machineHostName()))
             return;

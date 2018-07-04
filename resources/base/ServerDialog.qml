@@ -113,7 +113,7 @@ Dialog {
         width: 80
         height: 20
         color: "#ffffff"
-        text: "10.0.0.65"
+        text: "10.0.0.4"
         font.pixelSize: 12
     }
 
@@ -124,7 +124,7 @@ Dialog {
         width: 80
         height: 20
         color: "#ffffff"
-        text: qsTr("8000")
+        text: qsTr("1884")
         passwordCharacter: qsTr("●")
         font.pixelSize: 12
     }
