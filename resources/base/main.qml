@@ -68,13 +68,10 @@ ApplicationWindow {
     property var loggingOutput : null
 
     function getCurrentPool() {
-        console.log("get current pool "+localSelected);
         if (localSelected)
             return localProviderPool
-        else {
-            console.log(remoteProviderPool.name)
-            if (remoteProviderPool) return remoteProviderPool
-        }
+        else
+            return remoteProviderPool
     }
 
     // Size defaults to the small display

@@ -74,7 +74,6 @@ MqttDataProvider::MqttDataProvider(QString id, QMqttClient *client, QObject *par
 
 bool MqttDataProvider::startDataFetching()
 {
-    qDebug() << Q_FUNC_INFO;
     const QString subName = QString::fromLocal8Bit("sensors/%1/#").arg(m_id);
 
     m_subscription = m_client->subscribe(subName);
@@ -109,7 +108,6 @@ void MqttDataProvider::reset()
 
 void MqttDataProvider::messageReceived(const QMqttMessage &msg)
 {
-    qDebug() << Q_FUNC_INFO;
     parseMessage(msg.payload(), msg.topic().name());
     if (!m_pollTimer->isActive())
         m_pollTimer->start();
@@ -117,7 +115,6 @@ void MqttDataProvider::messageReceived(const QMqttMessage &msg)
 
 void MqttDataProvider::parseMessage(const QString &content, const QString &topic)
 {
-    qDebug() << Q_FUNC_INFO;
     const QString msgType = topic.split(QLatin1Char('/')).last();
     if (msgType == QStringLiteral("type")) {
         qDebug() << "Type: " << content;
@@ -200,8 +197,6 @@ void MqttDataProvider::parseMessage(const QString &content, const QString &topic
 
 void MqttDataProvider::dataTimeout()
 {
-
-    qDebug() << Q_FUNC_INFO;
     emit relativeHumidityChanged();
     emit lightIntensityChanged();
     emit infraredAmbientTemperatureChanged();

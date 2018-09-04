@@ -1,6 +1,7 @@
 TEMPLATE = app
 
 QT += \
+      bluetooth \
       core \
       charts \
       gui \
@@ -9,26 +10,22 @@ QT += \
       quick \
       widgets
 
-!emscripten: {
-    Qt += bluetooth
-    LIBS+=-lQt5Bluetooth
-}
 CONFIG += c++11
 DEFINES += QT_NO_FOREACH
 
 # Specify UI layout to use: UI_SMALL or UI_WATCH
-DEFINES += UI_SMALL
+DEFINES += UI_WATCH
 
 # To overcome the bug QTBUG-58648, uncomment this define
 # Needed at least for RPi3 and iMX
 #CONFIG += DEPLOY_TO_FS
-qtHaveModule(bluetooth) {
-    win32|linux|android:!qnx {
-        CONFIG += BLUETOOTH_HOST
-    } else {
-        message(Unsupported target platform)
-    }
+
+win32|linux|android:!qnx {
+    CONFIG += BLUETOOTH_HOST
+} else {
+    message(Unsupported target platform)
 }
+
 # For using MQTT upload enable this config.
 # This enables both, host and client mode
 # CONFIG += UPDATE_TO_MQTT_BROKER
@@ -71,38 +68,9 @@ HEADERS += \
     seriesstorage.h \
     mockdataproviderpool.h
 
-
-qtHaveModule(websockets) {
-    QT += websockets
-    DEFINES += Q_USE_WEBSOCKETS
-    SOURCES += \
-        websocketiodevice.cpp
-    HEADERS += \
-        websocketiodevice.h
-}
-
-wasm: {
-    QT += mqtt
-
-    CONFIG += static
-
-    SOURCES += \
-        sensortagdataproviderpool.cpp \
-        demodataproviderpool.cpp \
-        mqttupdate.cpp \
-        mqttdataproviderpool.cpp \
-        mqttdataprovider.cpp \
-
-    HEADERS += \
-        sensortagdataproviderpool.h \
-        demodataproviderpool.h \
-        mqttupdate.h \
-        mqttdataproviderpool.h \
-        mqttdataprovider.h \
-}
-
-!wasm:BLUETOOTH_HOST {
+BLUETOOTH_HOST {
     DEFINES += RUNS_AS_HOST
+
     SOURCES += \
         sensortagdataproviderpool.cpp \
         bluetoothdataprovider.cpp \
@@ -124,7 +92,7 @@ UPDATE_TO_MQTT_BROKER {
     !qtHaveModule(mqtt): error("Could not find MQTT module for Qt version")
     QT += mqtt
     DEFINES += MQTT_UPLOAD
-CONFIG += c++11
+
     SOURCES += mqttupdate.cpp \
                mqttdataproviderpool.cpp \
                mqttdataprovider.cpp
@@ -181,5 +149,3 @@ DEPLOY_TO_FS {
     baseFiles.path = /opt/$${TARGET}/resources
     INSTALLS += baseFiles uiVariant
 }
-
-FORMS +=

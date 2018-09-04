@@ -70,7 +70,7 @@ Item {
 
     Component.onCompleted: {
         localProviderPool.startScanning();
-        if (remoteProviderPool) remoteProviderPool.startScanning();
+        remoteProviderPool.startScanning();
     }
 
     property int titleFontSize: 22

@@ -49,14 +49,13 @@
 ****************************************************************************/
 #ifndef BLUETOOTHDATAPROVIDER_H
 #define BLUETOOTHDATAPROVIDER_H
-#ifndef Q_OS_WASM
 
 #include "sensortagdataprovider.h"
 #include "sensortagdataproviderpool.h"
 #include <QQmlEngine>
 #include <QJSEngine>
 #include <QTimer>
-#include <QtBluetooth/QBluetoothDeviceInfo>
+#include <QBluetoothDeviceInfo>
 
 class BluetoothDataProvider : public SensorTagDataProvider
 {
@@ -99,5 +98,5 @@ private:
     float gyroscopeZ_calibration;
     MotionSensorData latestData;
 };
-#endif
+
 #endif // BLUETOOTHDATAPROVIDER_H

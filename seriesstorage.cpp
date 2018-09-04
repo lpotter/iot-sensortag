@@ -68,9 +68,6 @@ SeriesStorage::SeriesStorage(QObject *parent) : QObject(parent)
 
 void SeriesStorage::setDataProviderPool(DataProviderPool *pool)
 {
-    if (!pool)
-        return;
-    qDebug() << Q_FUNC_INFO << pool->property("name");
     m_providerPool = pool;
     if (!m_providerPool)
         return;
@@ -98,7 +95,6 @@ void SeriesStorage::setMagnetoMeterSeries(QAbstractSeries *xSeries, QAbstractSer
 
 void SeriesStorage::dataProviderPoolChanged()
 {
-    qDebug() << Q_FUNC_INFO;
     m_gyroProvider = m_providerPool->currentProvider();
     if (m_gyroProvider)
         connect(m_gyroProvider, &SensorTagDataProvider::rotationValuesChanged,
@@ -132,7 +128,7 @@ void SeriesStorage::changeRotationSeries()
     updatePoints(m_gyroListZ, gyroSeriesIndex, m_gyroProvider->getRotationZ(), maxGyroReadings);
     m_gyroZ->replace(m_gyroListZ);
 
-    if (m_gyroX->attachedAxes().count() > 0 && gyroSeriesIndex >= maxGyroReadings) {
+    if (gyroSeriesIndex >= maxGyroReadings) {
         QAbstractAxis *axis = m_gyroX->attachedAxes().at(0);
         axisMin++;
         axisMax++;
@@ -161,7 +157,7 @@ void SeriesStorage::changeMagnetoSeries()
                  m_magnetoProvider->getMagnetometerMicroT_zAxis(), maxMagneticReadings);
     m_magnetoZ->replace(m_magnetoListZ);
 
-    if (m_magnetoX->attachedAxes().count() > 0 && magneticSeriesIndex >= maxMagneticReadings) {
+    if (magneticSeriesIndex >= maxMagneticReadings) {
         QAbstractAxis *axis = m_magnetoX->attachedAxes().at(0);
         axisMin++;
         axisMax++;
@@ -187,12 +183,13 @@ void SeriesStorage::changeTemperatureSeries()
 
     if (m_temperatureList.size() >= maxTemperatureReadings)
         m_temperatureList.removeFirst();
-    if (m_temperature->attachedAxes().count() > 0 && temperatureSeriesIndex >= maxTemperatureReadings) {
+
+    if (temperatureSeriesIndex >= maxTemperatureReadings) {
         QAbstractAxis *axis = m_temperature->attachedAxes().at(0);
         axisMin++;
         axisMax++;
         axis->setRange(axisMin, axisMax);
-        m_temperature->replace(m_temperatureList);
-        temperatureSeriesIndex++;
     }
+    m_temperature->replace(m_temperatureList);
+    temperatureSeriesIndex++;
 }

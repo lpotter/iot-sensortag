@@ -81,7 +81,7 @@ Item {
 
     Text {
         color: "white"
-        text: title;//.toUpperCase()
+        text: title.toUpperCase()
         font.pixelSize: Style.indicatorTitleFontSize
         anchors.left: titleIcon.right
         anchors.leftMargin: 14

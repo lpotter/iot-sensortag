@@ -22,6 +22,5 @@
         <file>resources/base/RotationPage.qml</file>
         <file>resources/base/AltitudeChart.qml</file>
         <file>resources/base/BlinkingIcon.qml</file>
-        <file>resources/base/ServerDialog.qml</file>
     </qresource>
 </RCC>

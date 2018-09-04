@@ -54,7 +54,6 @@
 #include <QString>
 #include <QColor>
 #include <QQmlEngine>
-#include <QDebug>
 
 class SensorTagDataProvider : public QObject
 {
@@ -113,7 +112,7 @@ public:
     explicit SensorTagDataProvider(QObject *parent = 0);
     SensorTagDataProvider(QString id, QObject *parent = 0);
 
-    Q_INVOKABLE virtual bool startDataFetching() { qDebug() << Q_FUNC_INFO; return false;}
+    Q_INVOKABLE virtual bool startDataFetching() {return false;}
     Q_INVOKABLE virtual void endDataFetching() {}
     QString getRelativeHumidityString() const;
     virtual double getRelativeHumidity() const;

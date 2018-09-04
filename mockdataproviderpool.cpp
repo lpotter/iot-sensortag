@@ -50,8 +50,6 @@
 #include "mockdataproviderpool.h"
 #include "sensortagdataproviderpool.h"
 #include "mockdataprovider.h"
-#include <QDebug>
-#include <QCoreApplication>
 
 MockDataProviderPool::MockDataProviderPool(QObject *parent)
     : DataProviderPool("Demo", parent)
@@ -70,13 +68,11 @@ void MockDataProviderPool::startScanning()
     p = new MockDataProvider("MOCK_PROVIDER_2", this);
     p->setTagType(SensorTagDataProvider::Humidity | SensorTagDataProvider::Light | SensorTagDataProvider::Accelometer);
     m_dataProviders.push_back(p);
-
     p = new MockDataProvider("MOCK_PROVIDER_3", this);
     p->setTagType(SensorTagDataProvider::Magnetometer | SensorTagDataProvider::AirPressure | SensorTagDataProvider::Altitude);
     m_dataProviders.push_back(p);
-    for (int i=0; i < m_dataProviders.length(); i++) {
+    for (int i=0; i < m_dataProviders.length(); i++)
         emit providerConnected(p->id());
-    }
 
     // Stop scanning as we already have a provider
     finishScanning();

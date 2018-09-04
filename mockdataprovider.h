@@ -62,11 +62,11 @@ class MockDataProvider : public SensorTagDataProvider
 public:
     explicit MockDataProvider(QString id, QObject *parent = 0);
 
-    bool startDataFetching() override;
-    void endDataFetching() override;
+    bool startDataFetching();
+    void endDataFetching();
 
-    QString sensorType() const override;
-    QString versionString() const override;
+    QString sensorType() const;
+    QString versionString() const;
 
 public slots:
     void slowTimerExpired();

@@ -48,8 +48,6 @@
 **
 ****************************************************************************/
 #include "dataproviderpool.h"
-#include <QDebug>
-#include <QCoreApplication>
 
 DataProviderPool::DataProviderPool(QObject *parent)
     : QObject(parent)
@@ -64,6 +62,7 @@ DataProviderPool::DataProviderPool(QString poolName, QObject *parent)
     , m_currentProvider(nullptr)
     , m_currentProviderIndex(-1)
 {
+
 }
 
 void DataProviderPool::startScanning()
@@ -82,7 +81,6 @@ void DataProviderPool::disconnectProvider(const QString &id)
 
 QQmlListProperty<SensorTagDataProvider> DataProviderPool::dataProviders()
 {
-    qDebug() << Q_FUNC_INFO << m_dataProviders.count();
    return QQmlListProperty<SensorTagDataProvider>(this, m_dataProviders);
 }
 
@@ -103,44 +101,11 @@ int DataProviderPool::currentProviderIndex() const
 
 void DataProviderPool::setCurrentProviderIndex(int currentProviderIndex)
 {
-
-    qDebug() << Q_FUNC_INFO << currentProviderIndex;
     if (m_currentProviderIndex == currentProviderIndex)
         return;
 
     m_currentProviderIndex = currentProviderIndex;
     m_currentProvider = m_dataProviders.at(m_currentProviderIndex);
-    qDebug() << Q_FUNC_INFO << "m_currentProvider" << m_currentProvider
-             << m_dataProviders.count();
-
     emit currentProviderIndexChanged(m_currentProviderIndex);
     emit currentProviderChanged(m_currentProvider);
-    QCoreApplication::processEvents();
-}
-
-void DataProviderPool::setServerName(const QString &server)
-{
-    qDebug() << Q_FUNC_INFO << server;
-    if (server != m_serverString) {
-        m_serverString = server;
-        emit serverNameChanged(server);
-    }
-}
-
-void DataProviderPool::setServerUserName(const QString &user)
-{
-    qDebug() << Q_FUNC_INFO << user;
-    if (user != m_serverUserName) {
-        m_serverUserName = user;
-        emit serverUserNameChanged(user);
-    }
-}
-
-void DataProviderPool::setServerPassword(const QString &pass)
-{
-    qDebug() << Q_FUNC_INFO << pass;
-    if (pass != m_serverPassword) {
-        m_serverPassword = pass;
-        emit serverPasswordChanged(pass);
-    }
 }

@@ -48,10 +48,8 @@
 **
 ****************************************************************************/
 
-#include "sensortagdataproviderpool.h"
-#ifndef Q_OS_WASM
 #include "bluetoothdataprovider.h"
-#endif
+#include "sensortagdataproviderpool.h"
 
 #include <QLoggingCategory>
 
@@ -65,7 +63,6 @@ SensorTagDataProviderPool::SensorTagDataProviderPool(QObject *parent)
 SensorTagDataProviderPool::SensorTagDataProviderPool(QString poolName, QObject *parent)
     : DataProviderPool(poolName, parent)
 {
-#ifndef Q_OS_WASM
     m_discoveryAgent = new QBluetoothDeviceDiscoveryAgent();
     connect(m_discoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered,
             this, &SensorTagDataProviderPool::btDeviceFound);
@@ -73,30 +70,24 @@ SensorTagDataProviderPool::SensorTagDataProviderPool(QString poolName, QObject *
             this, &SensorTagDataProviderPool::deviceScanError);
     connect(m_discoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished,
             this, &SensorTagDataProviderPool::deviceDiscoveryFinished);
-#endif
 }
 
 void SensorTagDataProviderPool::startScanning()
 {
-#ifndef Q_OS_WASM
     m_discoveryAgent->setLowEnergyDiscoveryTimeout(0);
     m_discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
 
     if (m_discoveryAgent->isActive()) {
         emit scanStarted();
     }
-#endif
 }
 
 void SensorTagDataProviderPool::disconnectProvider(const QString &id)
 {
     SensorTagDataProvider *p = findProvider(id);
-#ifndef Q_OS_WASM
     if (BluetoothDataProvider *btp = qobject_cast<BluetoothDataProvider*>(findProvider(id)))
         btp->unbindDevice();
-    else
-#endif
-        if (p)
+    else if (p)
         p->setState(SensorTagDataProvider::Disconnected);
 }
 
@@ -128,7 +119,6 @@ void SensorTagDataProviderPool::finishScanning()
     updateProviderForCloud();
 }
 
-#ifndef Q_OS_WASM
 void SensorTagDataProviderPool::btDeviceFound(const QBluetoothDeviceInfo &info)
 {
     if (info.coreConfigurations() & QBluetoothDeviceInfo::LowEnergyCoreConfiguration) {
@@ -149,7 +139,6 @@ void SensorTagDataProviderPool::btDeviceFound(const QBluetoothDeviceInfo &info)
         }
     }
 }
-#endif
 
 void SensorTagDataProviderPool::handleStateChange()
 {
@@ -172,7 +161,6 @@ void SensorTagDataProviderPool::handleStateChange()
     }
 }
 
-#ifndef Q_OS_WASM
 void SensorTagDataProviderPool::deviceScanError(QBluetoothDeviceDiscoveryAgent::Error error)
 {
     if (error == QBluetoothDeviceDiscoveryAgent::PoweredOffError)
@@ -184,7 +172,6 @@ void SensorTagDataProviderPool::deviceScanError(QBluetoothDeviceDiscoveryAgent::
 
     emit scanFinished();
 }
-#endif
 
 SensorTagDataProvider *SensorTagDataProviderPool::findProvider(QString id) const
 {

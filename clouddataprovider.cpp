@@ -79,7 +79,6 @@ CloudDataProvider::CloudDataProvider(QString id, QObject *parent)
 
 bool CloudDataProvider::startDataFetching()
 {
-    qDebug() << Q_FUNC_INFO;
     setState(Connected);
     pollTimer = new QTimer(this);
     connect(pollTimer, &QTimer::timeout, this, &CloudDataProvider::pollTimerExpired);
@@ -95,7 +94,6 @@ void CloudDataProvider::endDataFetching()
 
 void CloudDataProvider::parseReceivedText()
 {
-    qDebug() << Q_FUNC_INFO;
     QList<QByteArray> dataList = dataFetched.split('\n');
     if (dataList[2] != "Version:") {
         qWarning() << Q_FUNC_INFO << "Invalid file header:" << dataList[2];
@@ -197,29 +195,21 @@ void CloudDataProvider::parseReceivedText()
 
 void CloudDataProvider::pollTimerExpired()
 {
-    qDebug() << Q_FUNC_INFO << reply;
     if (!reply) {
         httpRequestAborted = false;
         dataFetched.clear();
         reply = qnam.get(QNetworkRequest(QUrl(dataFetchUrl)));
         connect(reply, &QNetworkReply::finished, this, &CloudDataProvider::httpFinished);
         connect(reply, &QIODevice::readyRead, this, &CloudDataProvider::httpReadyRead);
-        connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(replyError(QNetworkReply::NetworkError)));
     } else {
         qWarning() << "Attempt to fetch before previous http request was completed.";
     }
 }
 
-void CloudDataProvider::replyError(QNetworkReply::NetworkError code)
-{
-qDebug() << Q_FUNC_INFO << code << reply->errorString();
-}
-
 void CloudDataProvider::httpFinished()
 {
-    qDebug() << Q_FUNC_INFO;
     if (httpRequestAborted) {
-        qDebug() << "http request aborted.";
+        qCDebug(boot2QtDemos) << "http request aborted.";
         return;
     }
     if (reply->error()) {
@@ -234,8 +224,6 @@ void CloudDataProvider::httpFinished()
 
 void CloudDataProvider::httpReadyRead()
 {
-
-    qDebug() << Q_FUNC_INFO;
     // this slot gets called every time the QNetworkReply has new data.
     // We read all of its new data and write it into the file.
     // That way we use less RAM than when reading it at the finished()
@@ -260,8 +248,6 @@ void CloudDataProvider::sslErrors(QNetworkReply *, const QList<QSslError> &error
 
 void CloudDataProvider::slotAuthenticationRequired(QNetworkReply *, QAuthenticator *authenticator)
 {
-
-    qDebug() << Q_FUNC_INFO;
     Q_UNUSED(authenticator);
 }
 
