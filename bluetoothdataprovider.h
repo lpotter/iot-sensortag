@@ -49,7 +49,7 @@
 ****************************************************************************/
 #ifndef BLUETOOTHDATAPROVIDER_H
 #define BLUETOOTHDATAPROVIDER_H
-#ifndef Q_OS_HTML5
+#ifndef Q_OS_WASM
 
 #include "sensortagdataprovider.h"
 #include "sensortagdataproviderpool.h"

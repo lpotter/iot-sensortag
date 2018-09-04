@@ -49,7 +49,7 @@
 ****************************************************************************/
 
 #include "sensortagdataproviderpool.h"
-#ifndef Q_OS_HTML5
+#ifndef Q_OS_WASM
 #include "bluetoothdataprovider.h"
 #endif
 
@@ -65,7 +65,7 @@ SensorTagDataProviderPool::SensorTagDataProviderPool(QObject *parent)
 SensorTagDataProviderPool::SensorTagDataProviderPool(QString poolName, QObject *parent)
     : DataProviderPool(poolName, parent)
 {
-#ifndef Q_OS_HTML5
+#ifndef Q_OS_WASM
     m_discoveryAgent = new QBluetoothDeviceDiscoveryAgent();
     connect(m_discoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered,
             this, &SensorTagDataProviderPool::btDeviceFound);
@@ -78,7 +78,7 @@ SensorTagDataProviderPool::SensorTagDataProviderPool(QString poolName, QObject *
 
 void SensorTagDataProviderPool::startScanning()
 {
-#ifndef Q_OS_HTML5
+#ifndef Q_OS_WASM
     m_discoveryAgent->setLowEnergyDiscoveryTimeout(0);
     m_discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
 
@@ -91,7 +91,7 @@ void SensorTagDataProviderPool::startScanning()
 void SensorTagDataProviderPool::disconnectProvider(const QString &id)
 {
     SensorTagDataProvider *p = findProvider(id);
-#ifndef Q_OS_HTML5
+#ifndef Q_OS_WASM
     if (BluetoothDataProvider *btp = qobject_cast<BluetoothDataProvider*>(findProvider(id)))
         btp->unbindDevice();
     else
@@ -128,7 +128,7 @@ void SensorTagDataProviderPool::finishScanning()
     updateProviderForCloud();
 }
 
-#ifndef Q_OS_HTML5
+#ifndef Q_OS_WASM
 void SensorTagDataProviderPool::btDeviceFound(const QBluetoothDeviceInfo &info)
 {
     if (info.coreConfigurations() & QBluetoothDeviceInfo::LowEnergyCoreConfiguration) {
@@ -172,7 +172,7 @@ void SensorTagDataProviderPool::handleStateChange()
     }
 }
 
-#ifndef Q_OS_HTML5
+#ifndef Q_OS_WASM
 void SensorTagDataProviderPool::deviceScanError(QBluetoothDeviceDiscoveryAgent::Error error)
 {
     if (error == QBluetoothDeviceDiscoveryAgent::PoweredOffError)

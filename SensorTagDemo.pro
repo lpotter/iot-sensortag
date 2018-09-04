@@ -81,7 +81,7 @@ qtHaveModule(websockets) {
         websocketiodevice.h
 }
 
-emscripten: {
+wasm: {
     QT += mqtt
 
     CONFIG += static
@@ -101,7 +101,7 @@ emscripten: {
         mqttdataprovider.h \
 }
 
-!emscripten:BLUETOOTH_HOST {
+!wasm:BLUETOOTH_HOST {
     DEFINES += RUNS_AS_HOST
     SOURCES += \
         sensortagdataproviderpool.cpp \

@@ -67,7 +67,7 @@
 #include "mqttdataproviderpool.h"
 #endif
 #include "seriesstorage.h"
-#ifdef Q_OS_HTML5
+#ifdef Q_OS_WASM
 #include <emscripten.h>
 #include <emscripten/emscripten.h>
 #include <emscripten/html5.h>
@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
     // QtChars mandate using QApplication as it uses the graphics view fw
     QApplication app(argc, argv);
 
-#ifndef Q_OS_HTML5
+#ifndef Q_OS_WASM
     QFontDatabase::addApplicationFont(QString::fromLatin1(":/resources/base/fonts/titilliumweb/TitilliumWeb-Regular.ttf"));
     app.setFont(QFont("Titillium Web", 13));
 #endif
@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
 #if defined(MQTT_UPLOAD)
     remoteProviderPool = new MqttDataProviderPool;
 #endif
-#ifdef Q_OS_HTML5
+#ifdef Q_OS_WASM
     remoteProviderPool = new MqttDataProviderPool;
     localProviderPool = new DemoDataProviderPool;
 #endif
@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
 #else
                     false;
 #endif
-#ifdef Q_OS_HTML5
+#ifdef Q_OS_WASM
     double newWidth, newHeight;
     emscripten_get_element_css_size("#canvas", &newWidth, &newHeight);
 
