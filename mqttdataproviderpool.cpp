@@ -52,45 +52,110 @@
 #include "mqttdataprovider.h"
 
 #include <QtCore/QDebug>
+#include <QObject>
+#include <QCoreApplication>
+
+#ifdef Q_USE_WEBSOCKETS
+#include "websocketiodevice.h"
+#endif
 
 MqttDataProviderPool::MqttDataProviderPool(QObject *parent)
     : DataProviderPool(parent)
     , m_client(new QMqttClient(this))
+#ifdef Q_USE_WEBSOCKETS
+    , m_device(new WebSocketIODevice(this))
+    , m_version(4)
+#endif
 {
+
     m_poolName = "Mqtt";
+
+//    mqttBroker = QString::fromLocal8Bit(MQTT_BROKER);
+//    mqttPort = MQTT_PORT;
+
+    connect(this,&DataProviderPool::serverNameChanged,this,&MqttDataProviderPool::serverChanged);
 }
 
 void MqttDataProviderPool::startScanning()
 {
-    emit providerConnected("MQTT_CLOUD");
-    emit providersUpdated();
-    emit dataProvidersChanged();
+    if (mqttBroker.isEmpty())
+        return;
+#ifdef Q_USE_WEBSOCKETS
 
+    QUrl url;
+    url.setHost(mqttBroker);
+    url.setPort(mqttPort);
+    url.setScheme(QLatin1String("ws"));
+    url.setPath(QLatin1String("/mqtt"));
+    if (!mqttUsername.isEmpty())
+            url.setUserName(mqttUsername);
+    if (!mqttPassword.isEmpty())
+            url.setPassword(mqttPassword);
+
+    m_device->setUrl(url);
+    m_device->setProtocol(m_version == 3 ? "mqttv3.1" : "mqtt");
+
+    qDebug() << "Connecting to broker at " << url;
+
+    connect(m_device, &WebSocketIODevice::socketConnected, [this]() {
+
+        qDebug() << "<<<<<< WebSocket connected, initializing MQTT connection.";
+
+        m_client->setProtocolVersion(m_version == 3 ? QMqttClient::MQTT_3_1 : QMqttClient::MQTT_3_1_1);
+        m_client->setTransport(m_device, QMqttClient::IODevice);
+
+        connect(m_client, &QMqttClient::connected, [this]() {
+
+            qDebug() << "<<<<<< MQTT connection established";
+            QMqttSubscription *sub = m_client->subscribe(QLatin1String("sensors/active"));
+            connect(sub, &QMqttSubscription::messageReceived, this, &MqttDataProviderPool::deviceUpdate);
+        });
+
+        connect(m_client, &QMqttClient::disconnected, [this]() {
+            qDebug() << "Pool client disconnected";
+        });
+
+        m_client->connectToHost();
+    });
+#else
     m_client->setHostname(QLatin1String(MQTT_BROKER));
     m_client->setPort(MQTT_PORT);
     m_client->setUsername(QByteArray(MQTT_USERNAME));
     m_client->setPassword(QByteArray(MQTT_PASSWORD));
 
     connect(m_client, &QMqttClient::connected, [this]() {
-        auto sub = m_client->subscribe(QLatin1String("sensors/active"));
-        connect(sub, &QMqttSubscription::messageReceived, this, &MqttDataProviderPool::deviceUpdate);
+        QSharedPointer<QMqttSubscription> sub(m_client->subscribe(QLatin1String("sensors")));
+        connect(sub.data(), &QMqttSubscription::messageReceived, this, &MqttDataProviderPool::deviceUpdate);
     });
     connect(m_client, &QMqttClient::disconnected, [this]() {
         qDebug() << "Pool client disconnected";
     });
+
     m_client->connectToHost();
+#endif
+#ifdef Q_USE_WEBSOCKETS
+    if (!m_device->open(QIODevice::ReadWrite))
+        qDebug() << "Could not open socket device";
+#endif
+
+    emit providerConnected("MQTT_CLOUD");
+    emit providersUpdated();
+    emit dataProvidersChanged();
+    emit scanFinished();
 }
 
 void MqttDataProviderPool::deviceUpdate(const QMqttMessage &msg)
 {
     static QSet<QString> knownDevices;
+
+    bool updateRequired = false;
     // Registration is: deviceName>Online
     const QByteArrayList payload = msg.payload().split('>');
+
     const QString deviceName = payload.first();
     const QString deviceStatus = payload.at(1);
     const QString subName = QString::fromLocal8Bit("sensors/%1/#").arg(deviceName);
 
-    bool updateRequired = false;
     if (deviceStatus == QLatin1String("Online")) { // new device
         // Skip local items
         if (deviceName.startsWith(QSysInfo::machineHostName()))
@@ -106,6 +171,7 @@ void MqttDataProviderPool::deviceUpdate(const QMqttMessage &msg)
             updateRequired = true;
         }
     } else if (deviceStatus == QLatin1String("Offline")) { // device died
+        qDebug() << Q_FUNC_INFO << "device died";
         knownDevices.remove(deviceName);
         updateRequired = true;
         for (auto prov : m_dataProviders) {
@@ -120,4 +186,23 @@ void MqttDataProviderPool::deviceUpdate(const QMqttMessage &msg)
         emit providersUpdated();
         emit dataProvidersChanged();
     }
+}
+
+void MqttDataProviderPool::serverChanged(const QString &name)
+{
+    QStringList token = name.split(":");
+    if (token.count() > 0)
+        mqttBroker = token.at(0);
+    if (token.count() > 1)
+        mqttPort = token.at(1).toInt();
+}
+
+void MqttDataProviderPool::serverUserChanged(const QString &user)
+{
+    mqttUsername = user;
+}
+
+void MqttDataProviderPool::serverPasswordChanged(const QString &pass)
+{
+    mqttPassword = pass;
 }

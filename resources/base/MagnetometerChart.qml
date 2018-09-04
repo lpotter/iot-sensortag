@@ -112,7 +112,7 @@ BaseChart {
                 axisY: valueAxisY
                 color: xColor
                 name: "Magnet X"
-                useOpenGL: true
+                useOpenGL: false
                 width: 2
             }
             LineSeries {
@@ -121,7 +121,7 @@ BaseChart {
                 axisY: valueAxisY
                 color: yColor
                 name: "Magnet Y"
-                useOpenGL: true
+                useOpenGL: false
                 width: 2
             }
             LineSeries {
@@ -130,7 +130,7 @@ BaseChart {
                 axisY: valueAxisY
                 color: zColor
                 name: "Magnet Z"
-                useOpenGL: true
+                useOpenGL: false
                 width: 2
             }
         }

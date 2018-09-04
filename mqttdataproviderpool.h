@@ -51,14 +51,26 @@
 #define MQTTDATAPROVIDERPOOL_H
 
 #include "dataproviderpool.h"
+
+#ifdef Q_USE_WEBSOCKETS
+#include "websocketiodevice.h"
+#endif
+
 #include <QtMqtt/QMqttClient>
 
 class MqttDataProvider;
 
-#define MQTT_BROKER ""
-#define MQTT_PORT 1883
+#ifdef Q_OS_WASM
+#define MQTT_BROKER "10.0.0.4"
+#define MQTT_PORT 1884
 #define MQTT_USERNAME ""
 #define MQTT_PASSWORD ""
+#else
+#define MQTT_BROKER "10.0.0.4"
+#define MQTT_PORT 8000
+#define MQTT_USERNAME ""
+#define MQTT_PASSWORD ""
+#endif
 
 class MqttDataProviderPool : public DataProviderPool
 {
@@ -69,9 +81,20 @@ public:
 
 public Q_SLOTS:
     void deviceUpdate(const QMqttMessage &msg);
+    void serverChanged(const QString &name);
+    void serverUserChanged(const QString &user);
+    void serverPasswordChanged(const QString &pass);
 
 private:
     QMqttClient *m_client;
+#ifdef Q_USE_WEBSOCKETS
+    WebSocketIODevice *m_device;
+    int m_version;
+#endif
+    int mqttPort;
+    QString mqttBroker;
+    QString mqttUsername;
+    QString mqttPassword;
 };
 
 #endif // MQTTDATAPROVIDERPOOL_H

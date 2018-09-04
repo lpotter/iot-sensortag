@@ -50,6 +50,8 @@
 import QtQuick 2.0
 import SensorTag.DataProvider 1.0
 import Style 1.0
+import QtQuick.Controls 1.4
+import QtQuick.Controls.Styles 1.4
 
 Item {
     id: topToolbar
@@ -143,7 +145,7 @@ Item {
         anchors.rightMargin: 16
         horizontalAlignment: Text.AlignRight
         font.pixelSize: Style.topToolbarSmallFontSize
-        font.capitalization: Font.AllUppercase
+ //       font.capitalization: Font.AllUppercase
         visible: rotationMain.visible
         MouseArea {
             anchors.fill: parent
@@ -162,13 +164,16 @@ Item {
             anchors.fill: parent
             onClicked: clickBait.activate(logWindow)
         }
+        Component.onCompleted: {
+        console.log(Qt.formatTime(new Date, "HH:mm"))
+        }
     }
 
     Timer {
         interval: 60000 // Update time once a minute
         running: true
         repeat: true
-        onTriggered: timeLabel.text = Qt.formatTime(new Date, "HH:mm")
+        onTriggered: timeLabel.text = Qt.formatTime(new Date.now(), "HH:mm")
     }
 
     Text {
@@ -183,12 +188,45 @@ Item {
         font.pixelSize: Style.topToolbarSmallFontSize
         Component.onCompleted: {
             var date = new Date
+            console.log("<><><><><>><><><><><>");
+            console.log(date.getTime());
+
             var offsetString = -date.getTimezoneOffset() / 60
             if (offsetString < 0)
                 text = text + "-"
             else
                 text = text + "+"
             text = text + offsetString
+        }
+    }
+
+    Loader {
+        id: serverDialogLoader
+        onLoaded: serverDialogLoader.item.open()
+    }
+
+    Button {
+        id: serverButton
+        width:  150
+        height: 30
+        visible: remoteProviderPool.name === "Mqtt"
+
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 16
+        anchors.right: parent.right
+        anchors.rightMargin: 26
+        onClicked: {
+            serverDialogLoader.source = "ServerDialog.qml"
+        }
+        style: ButtonStyle {
+            background: Image {
+                source: "images/bg_blue.jpg"
+                anchors.fill: parent
+            }
+            label: Text {
+                color: "white"
+                text: "Server config"
+            }
         }
     }
 

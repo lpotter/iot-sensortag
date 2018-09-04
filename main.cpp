@@ -54,6 +54,7 @@
 #include "sensortagdataproviderpool.h"
 #include "demodataproviderpool.h"
 #endif
+
 #include "clouddataprovider.h"
 #include "clouddataproviderpool.h"
 #include "mockdataprovider.h"
@@ -66,7 +67,15 @@
 #include "mqttdataproviderpool.h"
 #endif
 #include "seriesstorage.h"
-
+#ifdef Q_OS_WASM
+#include <emscripten.h>
+#include <emscripten/emscripten.h>
+#include <emscripten/html5.h>
+#include "mqttupdate.h"
+#include "mqttdataprovider.h"
+#include "mqttdataproviderpool.h"
+#include "demodataproviderpool.h"
+#endif
 #include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQuickWindow>
@@ -80,25 +89,27 @@ Q_LOGGING_CATEGORY(boot2QtDemos, "boot2qt.demos.iot")
 
 QString loggingOutput;
 QQuickWindow *loggingItem{nullptr};
-void handleMessageOutput(QtMsgType, const QMessageLogContext &, const QString &text)
-{
-    loggingOutput.prepend("\n");
-    loggingOutput.prepend(text);
+//void handleMessageOutput(QtMsgType, const QMessageLogContext &, const QString &text)
+//{
+//    loggingOutput.prepend("\n");
+//    loggingOutput.prepend(text);
 
-    loggingOutput.chop(loggingOutput.size() - 1024);
-    if (loggingItem)
-        loggingItem->setProperty("loggingOutput", loggingOutput);
-}
+//    loggingOutput.chop(loggingOutput.size() - 1024);
+//    if (loggingItem)
+//        loggingItem->setProperty("loggingOutput", loggingOutput);
+//}
 
 int main(int argc, char *argv[])
 {
-    auto oldHandler = qInstallMessageHandler(handleMessageOutput);
+ //   auto oldHandler = qInstallMessageHandler(handleMessageOutput);
 
     // QtChars mandate using QApplication as it uses the graphics view fw
     QApplication app(argc, argv);
 
+#ifndef Q_OS_WASM
     QFontDatabase::addApplicationFont(QString::fromLatin1(":/resources/base/fonts/titilliumweb/TitilliumWeb-Regular.ttf"));
     app.setFont(QFont("Titillium Web", 13));
+#endif
 
     DataProviderPool *remoteProviderPool = nullptr;
     DataProviderPool *localProviderPool = nullptr;
@@ -112,6 +123,10 @@ int main(int argc, char *argv[])
 #if defined(MQTT_UPLOAD)
     remoteProviderPool = new MqttDataProviderPool;
 #endif
+#ifdef Q_OS_WASM
+    remoteProviderPool = new MqttDataProviderPool;
+    localProviderPool = new DemoDataProviderPool;
+#endif
 #if defined(RUNS_AS_HOST)
 //    localProviderPool = new MockDataProviderPool;
     localProviderPool = new DemoDataProviderPool;
@@ -121,6 +136,8 @@ int main(int argc, char *argv[])
     qmlRegisterType<SensorTagDataProvider>("SensorTag.DataProvider", 1, 0, "SensorTagData");
     qmlRegisterType<DataProviderPool>("SensorTag.DataProvider", 1, 0, "DataProviderPool");
     qmlRegisterType<SeriesStorage>("SensorTag.SeriesStorage", 1, 0, "SeriesStorage");
+
+    qRegisterMetaType<Qt::ApplicationState>("Qt::ApplicationState");
 
 #if defined(RUNS_AS_HOST) && (defined(AZURE_UPLOAD) || defined(MQTT_UPLOAD))
 #if AZURE_UPLOAD
@@ -150,8 +167,18 @@ int main(int argc, char *argv[])
 #else
                     false;
 #endif
+#ifdef Q_OS_WASM
+    double newWidth, newHeight;
+    emscripten_get_element_css_size("#canvas", &newWidth, &newHeight);
+
+    int appWidth = newWidth;
+    int appHeight = newHeight;
+    fullScreen = true;
+#else
     int appWidth = 1920;
     int appHeight = 1080;
+
+#endif
 
     QScreen* scr = qApp->screens().at(0);
 
@@ -160,6 +187,7 @@ int main(int argc, char *argv[])
     qCDebug(boot2QtDemos) << "Scale factor:" << sf.data();
 
     QString addressString;
+#ifndef QT_NO_NETWORKINTERFACE
     for (auto address : QNetworkInterface::allAddresses()) {
         if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress(QHostAddress::LocalHost)
                 && !address.toString().startsWith(QLatin1String("169"))) {
@@ -167,6 +195,7 @@ int main(int argc, char *argv[])
             addressString.append(QLatin1Char('/'));
         }
     }
+#endif
 #ifdef UI_WATCH
     mainFile = namingScheme + QStringLiteral("/resources/watch/MainWatch.qml");
     styleFile = namingScheme + QStringLiteral("/resources/watch/StyleWatch.qml");
@@ -207,7 +236,7 @@ int main(int argc, char *argv[])
     int returnValue = app.exec();
     remoteProviderPool->stopScanning();
 
-    qInstallMessageHandler(oldHandler);
+//    qInstallMessageHandler(oldHandler);
 
     return returnValue;
 }

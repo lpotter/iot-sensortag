@@ -67,8 +67,8 @@ Item {
     anchors.fill: parent
 
     Component.onCompleted: {
-        localProviderPool.startScanning();
-        remoteProviderPool.startScanning();
+        if (localProviderPool) localProviderPool.startScanning();
+        if (remoteProviderPool) remoteProviderPool.startScanning();
     }
 
     Column {
