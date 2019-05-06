@@ -49,7 +49,7 @@
 ****************************************************************************/
 #include "demodataproviderpool.h"
 #include "mockdataprovider.h"
-#ifndef Q_OS_HTML5
+#ifndef Q_OS_WASM
 #include "bluetoothdataprovider.h"
 #endif
 #include <QLoggingCategory>
@@ -288,7 +288,7 @@ void DemoDataProviderPool::startScanning()
     m_dataProviders.push_back(p);
     for (int i=0; i < m_dataProviders.length(); i++)
         emit providerConnected(p->id());
-#ifndef Q_OS_HTML5
+#ifndef Q_OS_WASM
     QCoreApplication::processEvents();
 #endif
     // Stop scanning as we already have a provider
