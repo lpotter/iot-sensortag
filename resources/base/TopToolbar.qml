@@ -50,8 +50,8 @@
 import QtQuick 2.0
 import SensorTag.DataProvider 1.0
 import Style 1.0
-import QtQuick.Controls 1.4
-import QtQuick.Controls.Styles 1.4
+import QtQuick.Controls 2.4
+import QtQuick.Controls.Styles 2.4
 
 Item {
     id: topToolbar
@@ -188,7 +188,6 @@ Item {
         font.pixelSize: Style.topToolbarSmallFontSize
         Component.onCompleted: {
             var date = new Date
-            console.log("<><><><><>><><><><><>");
             console.log(date.getTime());
 
             var offsetString = -date.getTimezoneOffset() / 60
@@ -200,33 +199,30 @@ Item {
         }
     }
 
-    Loader {
-        id: serverDialogLoader
-        onLoaded: serverDialogLoader.item.open()
+    ServerDialog {
+        id: serverDialog
     }
 
-    Button {
-        id: serverButton
-        width:  150
-        height: 30
-        visible: remoteProviderPool.name === "Mqtt"
-
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 16
+    Item {
+        id: serviceItem
+        height: topToolbar.height
+        anchors.top: parent.top
         anchors.right: parent.right
-        anchors.rightMargin: 26
-        onClicked: {
-            serverDialogLoader.source = "ServerDialog.qml"
+        anchors.rightMargin:  8
+        anchors.verticalCenter: parent.verticalCenter
+        width: serviceButton.width + 3 * anchors.rightMargin
+
+        Text {
+            id: serviceButton
+            color: "white"
+            text: "Service config"
+            font.pixelSize: Style.topToolbarSmallFontSize
+            anchors.right: parent.right
         }
-        style: ButtonStyle {
-            background: Image {
-                source: "images/bg_blue.jpg"
-                anchors.fill: parent
-            }
-            label: Text {
-                color: "white"
-                text: "Server config"
-            }
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: clickBait.activate(serverDialog)
         }
     }
 

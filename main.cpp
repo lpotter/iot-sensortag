@@ -232,10 +232,9 @@ int main(int argc, char *argv[])
         item->setProperty("seriesStorage", QVariant::fromValue(&seriesStorage));
         item->setProperty("addresses", addressString);
         loggingItem = item;
-    }
+     }
     int returnValue = app.exec();
     remoteProviderPool->stopScanning();
-
 //    qInstallMessageHandler(oldHandler);
 
     return returnValue;

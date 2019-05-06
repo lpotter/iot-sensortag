@@ -288,9 +288,7 @@ void DemoDataProviderPool::startScanning()
     m_dataProviders.push_back(p);
     for (int i=0; i < m_dataProviders.length(); i++)
         emit providerConnected(p->id());
-#ifndef Q_OS_WASM
-    QCoreApplication::processEvents();
-#endif
+
     // Stop scanning as we already have a provider
     finishScanning();
 
