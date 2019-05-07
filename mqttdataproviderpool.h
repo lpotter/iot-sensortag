@@ -60,22 +60,30 @@
 
 class MqttDataProvider;
 
-#ifdef Q_OS_WASM
-#define MQTT_BROKER "10.0.0.4"
-#define MQTT_PORT 1884
-#define MQTT_USERNAME ""
-#define MQTT_PASSWORD ""
-#else
-#define MQTT_BROKER "10.0.0.4"
-#define MQTT_PORT 8000
-#define MQTT_USERNAME ""
-#define MQTT_PASSWORD ""
-#endif
+//#ifdef Q_OS_WASM
+//#define MQTT_BROKER "10.0.0.4"
+//#define MQTT_PORT 1884
+//#define MQTT_USERNAME ""
+//#define MQTT_PASSWORD ""
+//#else
+//#define MQTT_BROKER "10.0.0.4"
+//#define MQTT_PORT 8000
+//#define MQTT_USERNAME ""
+//#define MQTT_PASSWORD ""
+//#endif
+
+namespace MqttCredentials
+{
+    QString getBroker();
+    int getPort();
+    QString getUsername();
+    QString getPassword();
+}
 
 class MqttDataProviderPool : public DataProviderPool
 {
 public:
-    explicit MqttDataProviderPool(QObject *parent = 0);
+    explicit MqttDataProviderPool(QObject *parent = nullptr);
 
     void startScanning() override;
 

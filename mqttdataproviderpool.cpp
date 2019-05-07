@@ -52,6 +52,9 @@
 #include "mqttdataprovider.h"
 
 #include <QtCore/QDebug>
+#include <QtCore/QFile>
+#include <QtCore/QJsonDocument>
+
 #include <QObject>
 #include <QCoreApplication>
 
@@ -118,10 +121,11 @@ void MqttDataProviderPool::startScanning()
         m_client->connectToHost();
     });
 #else
-    m_client->setHostname(QLatin1String(MQTT_BROKER));
-    m_client->setPort(MQTT_PORT);
-    m_client->setUsername(QByteArray(MQTT_USERNAME));
-    m_client->setPassword(QByteArray(MQTT_PASSWORD));
+
+    m_client->setHostname(MqttCredentials::getBroker());
+    m_client->setPort((quint16)MqttCredentials::getPort());
+    m_client->setUsername(MqttCredentials::getUsername());
+    m_client->setPassword(MqttCredentials::getPassword());
 
     connect(m_client, &QMqttClient::connected, [this]() {
         QSharedPointer<QMqttSubscription> sub(m_client->subscribe(QLatin1String("sensors")));
@@ -205,4 +209,63 @@ void MqttDataProviderPool::serverUserChanged(const QString &user)
 void MqttDataProviderPool::serverPasswordChanged(const QString &pass)
 {
     mqttPassword = pass;
+}
+
+namespace {
+    static QString gBroker;
+    static int gPort{0};
+    static QString gUser;
+    static QString gPassword;
+    bool resolveCredentials() {
+        static bool resolved = false;
+        if (resolved)
+            return true;
+
+        QFile f(QLatin1String("broker.json"));
+        if (!f.open(QIODevice::ReadOnly)) {
+            qDebug() << "Could not find or open broker.json";
+            return false;
+        }
+        const QByteArray data = f.readAll();
+        if (data.isEmpty()) {
+            qDebug() << "broker.json file empty";
+            return false;
+        }
+        QJsonDocument doc = QJsonDocument::fromJson(data);
+        if (doc.isNull()) {
+            qDebug() << "broker.json does not contain valid data";
+            return false;
+        }
+        gBroker = doc["broker"].toString();
+        gPort = doc["port"].toInt();
+        gUser = doc["user"].toString();
+        gPassword = doc["password"].toString();
+        qDebug() << "broker.json parsed. Using broker:" << gBroker << ":" << gPort;
+        resolved = true;
+        return true;
+    }
+}
+
+QString MqttCredentials::getBroker()
+{
+    resolveCredentials();
+    return gBroker;
+}
+
+int MqttCredentials::getPort()
+{
+    resolveCredentials();
+    return gPort;
+}
+
+QString MqttCredentials::getUsername()
+{
+    resolveCredentials();
+    return gUser;
+}
+
+QString MqttCredentials::getPassword()
+{
+    resolveCredentials();
+    return gPassword;
 }
