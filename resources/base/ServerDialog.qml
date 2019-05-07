@@ -113,7 +113,7 @@ Dialog {
         width: 80
         height: 20
         color: "#ffffff"
-        text: "10.0.0.4"
+        text: "192.168.0.7"
         font.pixelSize: 12
     }
 
