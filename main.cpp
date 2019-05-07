@@ -220,11 +220,13 @@ int main(int argc, char *argv[])
 
     QQuickWindow *item = qobject_cast<QQuickWindow *>(engine.rootObjects()[0]);
     if (item) {
-        item->setWidth(appWidth);
-        item->setHeight(appHeight);
 
         if (fullScreen)
             item->showFullScreen();
+        else {
+            item->setWidth(appWidth);
+            item->setHeight(appHeight);
+        }
 
         item->setProperty("localProviderPool", QVariant::fromValue(localProviderPool));
         item->setProperty("remoteProviderPool", QVariant::fromValue(remoteProviderPool));
