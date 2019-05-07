@@ -123,7 +123,7 @@ void MqttDataProviderPool::startScanning()
 #else
 
     m_client->setHostname(MqttCredentials::getBroker());
-    m_client->setPort((quint16)MqttCredentials::getPort());
+    m_client->setPort(static_cast<quint16>(MqttCredentials::getPort()));
     m_client->setUsername(MqttCredentials::getUsername());
     m_client->setPassword(MqttCredentials::getPassword());
 
@@ -131,7 +131,7 @@ void MqttDataProviderPool::startScanning()
         QSharedPointer<QMqttSubscription> sub(m_client->subscribe(QLatin1String("sensors")));
         connect(sub.data(), &QMqttSubscription::messageReceived, this, &MqttDataProviderPool::deviceUpdate);
     });
-    connect(m_client, &QMqttClient::disconnected, [this]() {
+    connect(m_client, &QMqttClient::disconnected, []() {
         qDebug() << "Pool client disconnected";
     });
 

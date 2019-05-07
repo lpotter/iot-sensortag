@@ -62,7 +62,7 @@ class MqttDataProvider : public SensorTagDataProvider
 {
     Q_OBJECT
 public:
-    explicit MqttDataProvider(QString id, QMqttClient *client, QObject *parent = 0);
+    explicit MqttDataProvider(QString id, QMqttClient *client, QObject *parent = nullptr);
 
     bool startDataFetching() override;
     void endDataFetching() override;
