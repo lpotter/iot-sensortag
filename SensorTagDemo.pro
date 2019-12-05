@@ -9,7 +9,7 @@ QT += \
       quick \
       widgets
 
-!emscripten: {
+!wasm: {
     Qt += bluetooth
     LIBS+=-lQt5Bluetooth
 }
@@ -31,7 +31,7 @@ qtHaveModule(bluetooth) {
 }
 # For using MQTT upload enable this config.
 # This enables both, host and client mode
-CONFIG += UPDATE_TO_MQTT_BROKER
+# CONFIG += UPDATE_TO_MQTT_BROKER
 
 # For using Azure cloud connectivity enable
 # this config. This enabled both, host and
@@ -81,7 +81,7 @@ qtHaveModule(websockets) {
         websocketiodevice.h
 }
 
-wasm: {
+wasm:!contains(CONFIG, UPDATE_TO_MQTT_BROKER) {
     QT += mqtt
 
     CONFIG += static
