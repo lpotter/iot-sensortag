@@ -181,5 +181,6 @@ DEPLOY_TO_FS {
     baseFiles.path = /opt/$${TARGET}/resources
     INSTALLS += baseFiles uiVariant
 }
-
+QMAKE_WASM_TOTAL_MEMORY=17563648 # 65536
+ 
 FORMS +=
